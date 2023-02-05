@@ -280,10 +280,10 @@ function GMusic:IsPaused()
 end
 
 --- Public function to set if this music is paused.
--- @param paused boolean
 -- @return boolean (true if the modification has been added, false if not existing/error)
-function GMusic:Pause(paused)
-    if not isbool(paused) then return false end
+function GMusic:Pause()
+    if not self then return false end
+    self.paused = !self.paused
     return AddEdit(tableModifications.paused, self)
 end
 
