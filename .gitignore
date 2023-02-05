@@ -1,8 +1,0 @@
-# Ignore all files and directories
-/.idea
-/.vscode
-/lua/autorun
-/lua/starnixmusic
-lua/weapons
-materials
-resource
