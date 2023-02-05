@@ -1,0 +1,302 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>GLocalMusic</strong></li>
+  <li><a href="../modules/GMusic.html">GMusic</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>GLocalMusic</code></h1>
+<p>Class used to handle all the system behind the music (like timers, etc.) (CLIENTSIDE)</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#SetPlaying">SetPlaying ()</a></td>
+	<td class="summary">Function that change the state of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SetPause">SetPause (state)</a></td>
+	<td class="summary">Function that change the state of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SetURL">SetURL (url)</a></td>
+	<td class="summary">Function that change the url of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SetVolume">SetVolume (volume)</a></td>
+	<td class="summary">Function that change the volume of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SetLoop">SetLoop (loop)</a></td>
+	<td class="summary">Function that change the loop state of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SetTime">SetTime (time)</a></td>
+	<td class="summary">Function that change the time of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SetAuthor">SetAuthor (author)</a></td>
+	<td class="summary">Function that change the author of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SetTitle">SetTitle (title)</a></td>
+	<td class="summary">Function that change the title of the music.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "SetPlaying"></a>
+    <strong>SetPlaying ()</strong>
+    </dt>
+    <dd>
+    Function that change the state of the music.  (Playing/Stopped=>DETROYED)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the music has been played/stopped, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SetPause"></a>
+    <strong>SetPause (state)</strong>
+    </dt>
+    <dd>
+    Function that change the state of the music.  (Resume/Pause)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">state</span>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the music has been paused/resumed, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SetURL"></a>
+    <strong>SetURL (url)</strong>
+    </dt>
+    <dd>
+    Function that change the url of the music.  (Music will be destroyed and recreated)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">url</span>
+         string (url of the music)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the url has been changed, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SetVolume"></a>
+    <strong>SetVolume (volume)</strong>
+    </dt>
+    <dd>
+    Function that change the volume of the music.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">volume</span>
+         number (volume of the music)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the volume has been changed, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SetLoop"></a>
+    <strong>SetLoop (loop)</strong>
+    </dt>
+    <dd>
+    Function that change the loop state of the music.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">loop</span>
+         boolean (true if the music will loop, false if not)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the loop state has been changed, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SetTime"></a>
+    <strong>SetTime (time)</strong>
+    </dt>
+    <dd>
+    Function that change the time of the music.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">time</span>
+         number (time of the music in SECONDS)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the time has been changed, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SetAuthor"></a>
+    <strong>SetAuthor (author)</strong>
+    </dt>
+    <dd>
+    Function that change the author of the music.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">author</span>
+         string (author of the music)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the author has been changed, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SetTitle"></a>
+    <strong>SetTitle (title)</strong>
+    </dt>
+    <dd>
+    Function that change the title of the music.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">title</span>
+         string (title of the music)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the title has been changed, false if not)
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2023-02-06 00:02:22 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
