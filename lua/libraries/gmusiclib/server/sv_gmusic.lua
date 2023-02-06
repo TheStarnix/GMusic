@@ -14,7 +14,7 @@ end
 local tableModifications = { 
     url         = b"0000000001",
     playing     = b"0000000010",
-    paused      = b"0000000100",
+    pause      = b"0000000100",
     volume      = b"0000001000",
     time        = b"0000010000",
     duration    = b"0000100000",
@@ -96,10 +96,10 @@ local function AddEdit(modification, self, receiver)
             print(tableModifications.playing)
             net.WriteBool(self.playing)
         end
-        if bit.band(modification, tableModifications.paused) ~= 0 then -- If the modification is the state of the music
-            print("PAUSED OK")
-            print(tableModifications.paused)
-            net.WriteBool(self.paused)
+        if bit.band(modification, tableModifications.pause) ~= 0 then -- If the modification is the state of the music
+            print("PAUSE OK")
+            print(tableModifications.pause)
+            net.WriteBool(self.pause)
         end
         if bit.band(modification, tableModifications.volume) ~= 0 then -- If the modification is the volume
             print("VOLUME OK")
@@ -158,7 +158,7 @@ function GMusic.create(url, creator, title, author, loop)
         loop = loop,
 
         playing = true,
-        paused = false,
+        pause = false,
 
         volume = 1,
         time = 0,
@@ -201,8 +201,7 @@ end
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetURL(url)
     if not isstring(url) then return false end
-    --TODO: Check if the URL is inside a whitelist.
-    return AddEdit(tableModifications.url, self)
+    --TODO: Check if the URL is inside a whitelist AND complete the function.
 end
 
 --- Public function to get the object creator.
@@ -222,6 +221,7 @@ end
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetTitle(title)
     if not isstring(title) then return false end
+    self.title = title
     return AddEdit(tableModifications.title, self)
 end
 
@@ -236,6 +236,7 @@ end
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetAuthor(author)
     if not isstring(author) then return false end
+    self.author = author
     return AddEdit(tableModifications.author, self)
 end
 
@@ -250,6 +251,7 @@ end
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetLoop(loop)
     if not isbool(loop) then return false end
+    self.loop = loop
     return AddEdit(tableModifications.loop, self)
 end
 
@@ -264,6 +266,7 @@ end
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetVolume(volume)
     if not isnumber(volume) then return false end
+    self.volume = volume
     return AddEdit(tableModifications.volume, self)
 end
 
@@ -276,15 +279,15 @@ end
 --- Public function that return if the music is paused.
 -- @return boolean
 function GMusic:IsPaused()
-    return self.paused
+    return self.pause
 end
 
 --- Public function to set if this music is paused.
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:Pause()
     if not self then return false end
-    self.paused = !self.paused
-    return AddEdit(tableModifications.paused, self)
+    self.pause = !self.pause
+    return AddEdit(tableModifications.pause, self)
 end
 
 --- Public function to get the length of the music.
@@ -305,6 +308,7 @@ end
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetTime(time)
     if not isnumber(time) then return false end
+    self.time = time
     return AddEdit(tableModifications.time, self)
 end
 
@@ -359,6 +363,7 @@ function GMusic:Stop(ply)
     else -- If the player is not the creator of the music, we stop the music only for him.
         self.whitelisted[ply] = nil
         self.playing = false
+        AddEdit(tableModifications.playing, self, ply)
         return AddEdit(tableModifications.whitelist, self, ply)
     end
 end
