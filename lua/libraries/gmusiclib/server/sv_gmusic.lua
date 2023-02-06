@@ -361,16 +361,24 @@ function GMusic:Stop(ply)
     if self:GetCreator() == ply then -- If the player is the creator of the music, we stop the music for everyone.
         return self:Delete()
     else -- If the player is not the creator of the music, we stop the music only for him.
+        local temporary = self
+        temporary.playing = false
+        AddEdit(tableModifications.playing, temporary, ply) -- We only send the modification to the player, not all.
         self.whitelisted[ply] = nil
-        self.playing = false
-        AddEdit(tableModifications.playing, self, ply)
-        return AddEdit(tableModifications.whitelist, self, ply)
+        return AddEdit(tableModifications.whitelist, self, nil)
     end
 end
 
 --- Private function that unregisterID of disconnected players.
 hook.Add("PlayerDisconnected", "GMusicLib_PlayerDisconnected", function(ply)
     if isListeningMusic(ply) then
-        unregisterID(ply)
+        -- If the player is the creator a music object, we delete it, else we remove him from the whitelist.
+        local music = GMusic:GetPlayerMusic(ply)
+        if not music then return end
+        if music:GetCreator() == ply then
+            music:Delete()
+        else
+            music:RemovePlayer(ply)
+        end
     end
 end)
