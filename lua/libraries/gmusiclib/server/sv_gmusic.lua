@@ -2,15 +2,17 @@
 -- @module GMusic
 _G.GMusic = {}
 GMusic.__index = GMusic-- If a key cannot be found in an object, it will look in it's metatable's __index metamethod.
-GMusic.CurrentAudios = {}
+GMusic.CurrentAudios = {} -- @field CurrentAudios Table used to store all music objects. (SERVERSIDE)
 
-GMusic.maxID = 5
+GMusic.maxID = 5 -- @field maxID Maximum number of music that can be played at the same time. (SERVERSIDE)
 local GMusicCount = 0
 
+--- Return the binary value of a string.
 local function b(str)
 	return tonumber(str, 2)
 end
 
+-- @table tableModifications Table used to store all the modifications that can be done to a music object. (bitflag) (SERVERSIDE)
 local tableModifications = { 
     url         = b"0000000001",
     playing     = b"0000000010",
@@ -32,6 +34,8 @@ local modifications_blen = math.ceil( math.log(tableModifications.all, 2) )
 
 
 --- Alloc an id to the requested music.
+-- @param creator Player (player that requested the music)
+-- @return number (id of the music)
 local function registerID(creator)
     if GMusicCount >= GMusic.maxID then
         print("GMusic: Too many music playing at the same time. (max: "..GMusic.maxID..")")
@@ -44,18 +48,22 @@ local function registerID(creator)
 end
 
 --- Free an id to the requested music ID.
+-- @param id number (id of the music)
 local function unregisterID(id)
     GMusicCount = GMusicCount - 1
     GMusic.CurrentAudios[id] = nil
 end
 
 --- Local function that check if a player is listening a music.
--- @param player Player
+-- @param player Player (player to check)
+-- @return boolean (true if the player is listening a music, false if not)
 local function isListeningMusic(player)
     return playersListeningMusic[player] ~= nil
 end
 
 --- Local function that send a music object to a player.
+-- @param self table (music object)
+-- @param player Player (player to send the music object)
 local function sendMusicToPlayer(self, player)
     if not self or not player then return end -- Object or player not existing
     net.Start("GMusic_SendSong")
@@ -148,6 +156,12 @@ function GMusic:Delete()
 end
 
 --- Public Function which create the music object.
+-- @param url string (url of the music)
+-- @param creator Player (player who created the music)
+-- @param title string (title of the music)
+-- @param author string (author of the music)
+-- @param loop boolean (true if the music is looped, false if not)
+-- @return table (music object)
 function GMusic.create(url, creator, title, author, loop)
     local id = registerID(creator)
     if not id then return end
@@ -183,7 +197,7 @@ function GMusic:GetID()
 end
 
 --- Public function to get the object with the ID.
--- @param id number
+-- @param id number (id of the object)
 -- @return GMusic
 function GMusic:GetByID(id)
     if not id then return end
@@ -197,7 +211,7 @@ function GMusic:GetURL()
 end
 
 --- Public function to set the object URL (change the music).
--- @param url string
+-- @param url string (url of the music)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetURL(url)
     if not isstring(url) then return false end
@@ -205,19 +219,19 @@ function GMusic:SetURL(url)
 end
 
 --- Public function to get the object creator.
--- @return Player
+-- @return Player (creator of the object)
 function GMusic:GetCreator()
     return self.creator
 end
 
 --- Public function to get the object Title.
--- @return string
+-- @return string (title of the object)
 function GMusic:GetTitle()
     return self.title
 end
 
 --- Public function to set the object Title.
--- @param title string
+-- @param title string (title of the object)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetTitle(title)
     if not isstring(title) then return false end
@@ -226,13 +240,13 @@ function GMusic:SetTitle(title)
 end
 
 --- Public function to get the object author.
--- @return string
+-- @return string (author of the object)
 function GMusic:GetAuthor()
     return self.author
 end
 
 --- Public function to set the object author.
--- @param author string
+-- @param author string (author of the object)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetAuthor(author)
     if not isstring(author) then return false end
@@ -241,13 +255,13 @@ function GMusic:SetAuthor(author)
 end
 
 --- Public function to get the object loop.
--- @return boolean
+-- @return boolean (true if the object is looped, false if not)
 function GMusic:GetLoop()
     return self.loop
 end
 
 --- Public function to set the object loop.
--- @param loop boolean
+-- @param loop boolean (true if the object is looped, false if not)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetLoop(loop)
     if not isbool(loop) then return false end
@@ -256,13 +270,13 @@ function GMusic:SetLoop(loop)
 end
 
 --- Public function to get the object volume.
--- @return number
+-- @return number (volume of the object)
 function GMusic:GetVolume()
     return self.volume
 end 
 
 --- Public function to set the object volume.
--- @param volume number
+-- @param volume number (volume of the object)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetVolume(volume)
     if not isnumber(volume) then return false end
@@ -271,13 +285,13 @@ function GMusic:SetVolume(volume)
 end
 
 --- Public function that return if the music is playing.
--- @return boolean
+-- @return boolean (true if the music is playing, false if not)
 function GMusic:IsPlaying()
     return self.playing
 end
 
 --- Public function that return if the music is paused.
--- @return boolean
+-- @return boolean (true if the music is paused, false if not)
 function GMusic:IsPaused()
     return self.pause
 end
@@ -291,20 +305,20 @@ function GMusic:Pause()
 end
 
 --- Public function to get the length of the music.
--- @return number
+-- @return number (length of the music)
 function GMusic:GetDuration()
     return self.duration
 end
 
 
 --- Public function to get the time of the music.
--- @return number
+-- @return number (time of the music)
 function GMusic:GetTime()
     return self.time
 end
 
 --- Public function to set the time of the music.
--- @param time number
+-- @param time number (time of the music)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetTime(time)
     if not isnumber(time) then return false end
@@ -313,7 +327,7 @@ function GMusic:SetTime(time)
 end
 
 --- Public function to add a player to the whitelist.
--- @param ply Player
+-- @param ply Player (player to add)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:AddPlayer(ply)
     if not IsValid(ply) then return false end
@@ -327,7 +341,7 @@ function GMusic:AddPlayer(ply)
 end 
 
 --- Public function to remove a player from the whitelist.
--- @param ply Player
+-- @param ply Player (player to remove)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:RemovePlayer(ply)
     if not IsValid(ply) then return false end
@@ -340,9 +354,9 @@ function GMusic:RemovePlayer(ply)
     end
 end
 
---- Public function to get the music heared by a player.
--- @param ply Player
--- @return GMusic
+--- Public function to get the music object heared by a player.
+-- @param ply Player (player to get the music)
+-- @return GMusic (music object)
 function GMusic:GetPlayerMusic(ply)
     if not IsValid(ply) then return false end
     local idMusic = playersListeningMusic[ply]
@@ -355,7 +369,7 @@ function GMusic:GetPlayerMusic(ply)
 end
 
 --- Public function to stop the music.
--- @param playing boolean
+-- @param playing boolean (true if the music is playing, false if not)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:Stop(ply)
     if self:GetCreator() == ply then -- If the player is the creator of the music, we stop the music for everyone.

@@ -2,12 +2,14 @@
 -- @module GLocalMusic
 _G.GLocalMusic = {}
 GLocalMusic.__index = GLocalMusic-- If a key cannot be found in an object, it will look in it's metatable's __index metamethod.
-GLocalMusic.CurrentAudio = {}
+GLocalMusic.CurrentAudio = {} -- @field CurrentAudio (table) (table containing the current music object) (CLIENTSIDE)
 
+--- Function that convert a string to a binary number.
 local function b(str)
 	return tonumber(str, 2)
 end
 
+-- @fields tableModifications (table) (table containing all the modifications that can be done to a music) (CLIENTSIDE)
 local tableModifications = { 
     url         = b"0000000001",
     playing     = b"0000000010",
@@ -22,9 +24,12 @@ local tableModifications = {
 
     all         = b"1111111111"
 }
--- Bits needed to send a bitflag of all the modifications
+-- @fields Bits needed to send a bitflag of all the modifications
 local modifications_blen = math.ceil( math.log(tableModifications.all, 2) )
 
+--- Function that create the music sound by using the informations given (informations are the music object).
+-- @param informations table (table containing all the informations about the music)
+-- @return informations (object of the music with audioChannel inside)
 local function CreateMusic(informations)
     if not informations then return end
     local stream_owner = informations.creator or LocalPlayer()
