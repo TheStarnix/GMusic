@@ -199,7 +199,7 @@ end
 --- Public function to get the object with the ID.
 -- @param id number (id of the object)
 -- @return GMusic
-function GMusic:GetByID(id)
+function GMusic.GetByID(id)
     if not id then return end
     return GMusic.CurrentAudios[id]
 end
@@ -357,11 +357,11 @@ end
 --- Public function to get the music object heared by a player.
 -- @param ply Player (player to get the music)
 -- @return GMusic (music object)
-function GMusic:GetPlayerMusic(ply)
+function GMusic.GetPlayerMusic(ply)
     if not IsValid(ply) then return false end
     local idMusic = playersListeningMusic[ply]
     if idMusic then
-        return GMusic:GetByID(idMusic)
+        return GMusic.GetByID(idMusic)
     else
         return false
     end

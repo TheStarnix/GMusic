@@ -73,7 +73,7 @@ end)
 
 --- Function that change the state of the music. (Playing/Stopped=>DETROYED)
 -- @return boolean (true if the music has been played/stopped, false if not)
-function GLocalMusic:Stop()
+function GLocalMusic.Stop()
     print("Appelé")
     if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not GLocalMusic.CurrentAudio.audioChannel:IsValid() then  -- Object not existing
         RunConsoleCommand("stopsound")
@@ -89,7 +89,7 @@ end
 --- Function that change the state of the music. (Resume/Pause)
 -- @param state boolean (true if the music will be paused, false if it will be resumed)
 -- @return boolean (true if the music has been paused/resumed, false if not)
-function GLocalMusic:SetPause(state)
+function GLocalMusic.SetPause(state)
     print(GLocalMusic.CurrentAudio.pause)
     if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel then return end -- Object not existing
     GLocalMusic.CurrentAudio.pause = state
@@ -109,7 +109,7 @@ end
 --- Function that change the url of the music. (Music will be destroyed and recreated)
 -- @param url string (url of the music)
 -- @return boolean (true if the url has been changed, false if not)
-function GLocalMusic:SetURL(url)
+function GLocalMusic.SetURL(url)
     if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not url then return false end -- Object not existing
     GLocalMusic.CurrentAudio.url = url
     GLocalMusic.CurrentAudio.audioChannel:Stop() -- Stop the music
@@ -121,7 +121,7 @@ end
 --- Function that change the volume of the music.
 -- @param volume number (volume of the music)
 -- @return boolean (true if the volume has been changed, false if not)
-function GLocalMusic:SetVolume(volume)
+function GLocalMusic.SetVolume(volume)
     if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not volume then return false end -- Object not existing
     print("Volume: " .. volume)
     GLocalMusic.CurrentAudio.volume = volume
@@ -132,7 +132,7 @@ end
 --- Function that change the loop state of the music.
 -- @param loop boolean (true if the music will loop, false if not)
 -- @return boolean (true if the loop state has been changed, false if not)
-function GLocalMusic:SetLoop(loop)
+function GLocalMusic.SetLoop(loop)
     if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not loop then return false end -- Object not existing
     GLocalMusic.CurrentAudio.loop = loop
     GLocalMusic.CurrentAudio.audioChannel:EnableLooping(loop) -- Set the loop state
@@ -142,7 +142,7 @@ end
 --- Function that change the time of the music.
 -- @param time number (time of the music in SECONDS)
 -- @return boolean (true if the time has been changed, false if not)
-function GLocalMusic:SetTime(time)
+function GLocalMusic.SetTime(time)
     if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not time then return false end -- Object not existing
     GLocalMusic.CurrentAudio.time = time
     GLocalMusic.CurrentAudio.audioChannel:SetTime(time) -- Set the time
@@ -152,7 +152,7 @@ end
 --- Function that change the author of the music.
 -- @param author string (author of the music)
 -- @return boolean (true if the author has been changed, false if not)
-function GLocalMusic:SetAuthor(author)
+function GLocalMusic.SetAuthor(author)
     if not GLocalMusic.CurrentAudio or not author then return false end -- Object not existing
     GLocalMusic.CurrentAudio.author = author
     return true
@@ -161,7 +161,7 @@ end
 --- Function that change the title of the music.
 -- @param title string (title of the music)
 -- @return boolean (true if the title has been changed, false if not)
-function GLocalMusic:SetTitle(title)
+function GLocalMusic.SetTitle(title)
     if not GLocalMusic.CurrentAudio or not title then return false end -- Object not existing
     GLocalMusic.CurrentAudio.title = title
     return true
@@ -169,8 +169,8 @@ end
 
 --- Function that return if the music is created or not by using the GLocalMusic:CurrentAudio variable.
 -- @return boolean (true if the music is created, false if not)
-function GLocalMusic:IsCreated()
-    if self.CurrentAudio and self.CurrentAudio.audioChannel and self.CurrentAudio.audioChannel:IsValid() then
+function GLocalMusic.IsCreated()
+    if GLocalMusic.CurrentAudio and GLocalMusic.CurrentAudio.audioChannel and GLocalMusic.CurrentAudio.audioChannel:IsValid() then
         return true
     else
         return false
@@ -188,38 +188,38 @@ local function AddEdit(modificationsBits)
     --]]
     if bit.band(modificationsBits, tableModifications.url) ~= 0 then -- If the modification is the URL
         local editUrl = net.ReadString()
-        GLocalMusic:SetURL(editUrl)
+        GLocalMusic.SetURL(editUrl)
     end
     if bit.band(modificationsBits, tableModifications.playing) ~= 0 then -- If the modification is the playing state
         print("Stop modification")
-        GLocalMusic:Stop()
+        GLocalMusic.Stop()
     end
     if bit.band(modificationsBits, tableModifications.pause) ~= 0 then -- If the modification is the state of the music
         print("PAUSE")
         local editPause = net.ReadBool()
-        GLocalMusic:SetPause(editPause)
+        GLocalMusic.SetPause(editPause)
     end
     if bit.band(modificationsBits, tableModifications.volume) ~= 0  then -- If the modification is the volume
         print("VOLUME")
         local editVolume = net.ReadFloat()
-        GLocalMusic:SetVolume(editVolume)
+        GLocalMusic.SetVolume(editVolume)
     end
     if bit.band(modificationsBits, tableModifications.time) ~= 0 then -- If the modification is the time
         print("TIME")
         local editTime = net.ReadFloat()
-        GLocalMusic:SetTime(editTime)
+        GLocalMusic.SetTime(editTime)
     end
     if bit.band(modificationsBits, tableModifications.loop) ~= 0  then -- If the modification is the loop state
         local editLoop = net.ReadBool()
-        GLocalMusic:SetLoop(editLoop)
+        GLocalMusic.SetLoop(editLoop)
     end
     if bit.band(modificationsBits, tableModifications.author) ~= 0  then -- If the modification is the author
         local editAuthor = net.ReadString()
-        GLocalMusic:SetAuthor(editAuthor)
+        GLocalMusic.SetAuthor(editAuthor)
     end
     if bit.band(modificationsBits, tableModifications.title) ~= 0  then -- If the modification is the title
         local editTitle = net.ReadString()
-        GLocalMusic:SetTitle(editTitle)
+        GLocalMusic.SetTitle(editTitle)
     end
 end
 
