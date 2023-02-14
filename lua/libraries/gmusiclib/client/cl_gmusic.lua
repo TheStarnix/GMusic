@@ -123,7 +123,6 @@ end
 -- @return boolean (true if the volume has been changed, false if not)
 function GLocalMusic.SetVolume(volume)
     if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not volume then return false end -- Object not existing
-    print("Volume: " .. volume)
     GLocalMusic.CurrentAudio.volume = volume
     GLocalMusic.CurrentAudio.audioChannel:SetVolume(volume) -- Set the volume
     return true
@@ -177,6 +176,41 @@ function GLocalMusic.IsCreated()
     end
 end
 
+--- Function that return the current time of the music.
+-- @return number (time of the music in SECONDS)
+function GLocalMusic.GetTime()
+    if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel then return 0 end -- Object not existing
+    print(GLocalMusic.CurrentAudio.audioChannel:GetTime())
+    return GLocalMusic.CurrentAudio.audioChannel:GetTime()
+end
+
+--- Function that return the duration of the music.
+-- @return number (duration of the music in SECONDS)
+function GLocalMusic.GetDuration()
+    if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel then return 0 end -- Object not existing
+    return GLocalMusic.CurrentAudio.audioChannel:GetLength()
+end
+
+--- Function that return the current volume of the music.
+-- @return number (volume of the music) (0 if the music is not created)
+function GLocalMusic.GetVolume()
+    if not GLocalMusic.CurrentAudio then return 0 end -- Object not existing
+    return GLocalMusic.CurrentAudio.volume
+end
+
+--- Function that return the current loop state of the music.
+-- @return boolean (true if the music is looping, false if not)
+function GLocalMusic.GetLoop()
+    if not GLocalMusic.CurrentAudio then return false end -- Object not existing
+    return GLocalMusic.CurrentAudio.loop
+end
+
+--- Function that return if the music is paused or not.
+-- @return boolean (true if the music is paused, false if paused)
+function GLocalMusic.IsPaused()
+    if not GLocalMusic.CurrentAudio then return false end -- Object not existing
+    return GLocalMusic.CurrentAudio.pause
+end
 
 --- Private Function to add a modification to the music object.
 -- @param modificationBits number (cf. tableModifications)

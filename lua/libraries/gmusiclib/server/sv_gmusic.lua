@@ -142,7 +142,7 @@ local function AddEdit(modification, self, receiver)
     end
 end
 
---- Public function to delete the music object.
+--- Public Method to delete the music object.
 -- @return boolean (true if the music has been deleted, false if not existing)
 function GMusic:Delete()
     if not self then return false end
@@ -190,13 +190,13 @@ function GMusic.create(url, creator, title, author, loop)
     return self
 end
 
---- Public function to get the object ID.
+--- Public Method to get the object ID.
 -- @return number
 function GMusic:GetID()
     return self.id
 end
 
---- Public function to get the object with the ID.
+--- Public Method to get the object with the ID.
 -- @param id number (id of the object)
 -- @return GMusic
 function GMusic.GetByID(id)
@@ -204,13 +204,13 @@ function GMusic.GetByID(id)
     return GMusic.CurrentAudios[id]
 end
 
---- Public function to get the object URL.
+--- Public Method to get the object URL.
 -- @return string
 function GMusic:GetURL()
     return self.url
 end
 
---- Public function to set the object URL (change the music).
+--- Public Method to set the object URL (change the music).
 -- @param url string (url of the music)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetURL(url)
@@ -218,19 +218,19 @@ function GMusic:SetURL(url)
     --TODO: Check if the URL is inside a whitelist AND complete the function.
 end
 
---- Public function to get the object creator.
+--- Public Method to get the object creator.
 -- @return Player (creator of the object)
 function GMusic:GetCreator()
     return self.creator
 end
 
---- Public function to get the object Title.
+--- Public Method to get the object Title.
 -- @return string (title of the object)
 function GMusic:GetTitle()
     return self.title
 end
 
---- Public function to set the object Title.
+--- Public Method to set the object Title.
 -- @param title string (title of the object)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetTitle(title)
@@ -239,13 +239,13 @@ function GMusic:SetTitle(title)
     return AddEdit(tableModifications.title, self)
 end
 
---- Public function to get the object author.
+--- Public Method to get the object author.
 -- @return string (author of the object)
 function GMusic:GetAuthor()
     return self.author
 end
 
---- Public function to set the object author.
+--- Public Method to set the object author.
 -- @param author string (author of the object)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetAuthor(author)
@@ -254,13 +254,13 @@ function GMusic:SetAuthor(author)
     return AddEdit(tableModifications.author, self)
 end
 
---- Public function to get the object loop.
+--- Public Method to get the object loop.
 -- @return boolean (true if the object is looped, false if not)
 function GMusic:GetLoop()
     return self.loop
 end
 
---- Public function to set the object loop.
+--- Public Method to set the object loop.
 -- @param loop boolean (true if the object is looped, false if not)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetLoop(loop)
@@ -269,13 +269,13 @@ function GMusic:SetLoop(loop)
     return AddEdit(tableModifications.loop, self)
 end
 
---- Public function to get the object volume.
+--- Public Method to get the object volume.
 -- @return number (volume of the object)
 function GMusic:GetVolume()
     return self.volume
 end 
 
---- Public function to set the object volume.
+--- Public Method to set the object volume.
 -- @param volume number (volume of the object)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetVolume(volume)
@@ -284,19 +284,19 @@ function GMusic:SetVolume(volume)
     return AddEdit(tableModifications.volume, self)
 end
 
---- Public function that return if the music is playing.
+--- Public Method that return if the music is playing.
 -- @return boolean (true if the music is playing, false if not)
 function GMusic:IsPlaying()
     return self.playing
 end
 
---- Public function that return if the music is paused.
+--- Public Method that return if the music is paused.
 -- @return boolean (true if the music is paused, false if not)
 function GMusic:IsPaused()
     return self.pause
 end
 
---- Public function to set if this music is paused.
+--- Public Method to set if this music is paused.
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:Pause()
     if not self then return false end
@@ -304,20 +304,20 @@ function GMusic:Pause()
     return AddEdit(tableModifications.pause, self)
 end
 
---- Public function to get the length of the music.
+--- Public Method to get the length of the music.
 -- @return number (length of the music)
 function GMusic:GetDuration()
     return self.duration
 end
 
 
---- Public function to get the time of the music.
+--- Public Method to get the time of the music.
 -- @return number (time of the music)
 function GMusic:GetTime()
     return self.time
 end
 
---- Public function to set the time of the music.
+--- Public Method to set the time of the music.
 -- @param time number (time of the music)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetTime(time)
@@ -326,7 +326,7 @@ function GMusic:SetTime(time)
     return AddEdit(tableModifications.time, self)
 end
 
---- Public function to add a player to the whitelist.
+--- Public Method to add a player to the whitelist.
 -- @param ply Player (player to add)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:AddPlayer(ply)
@@ -340,7 +340,7 @@ function GMusic:AddPlayer(ply)
     end
 end 
 
---- Public function to remove a player from the whitelist.
+--- Public Method to remove a player from the whitelist.
 -- @param ply Player (player to remove)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:RemovePlayer(ply)
@@ -368,7 +368,7 @@ function GMusic.GetPlayerMusic(ply)
     return playersListeningMusic[ply]
 end
 
---- Public function to stop the music.
+--- Public Method to stop the music.
 -- @param playing boolean (true if the music is playing, false if not)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:Stop(ply)
