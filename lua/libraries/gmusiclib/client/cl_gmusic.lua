@@ -180,7 +180,6 @@ end
 -- @return number (time of the music in SECONDS)
 function GLocalMusic.GetTime()
     if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel then return 0 end -- Object not existing
-    print(GLocalMusic.CurrentAudio.audioChannel:GetTime())
     return GLocalMusic.CurrentAudio.audioChannel:GetTime()
 end
 
