@@ -368,7 +368,7 @@ function GMusic.GetPlayerMusic(ply)
     return playersListeningMusic[ply]
 end
 
---- Public Method to stop the music.
+--- Public function to stop the music.
 -- @param playing boolean (true if the music is playing, false if not)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:Stop(ply)
@@ -381,6 +381,28 @@ function GMusic:Stop(ply)
         self.whitelisted[ply] = nil
         return AddEdit(tableModifications.whitelist, self, nil)
     end
+end
+
+--- Public method to get whitelisted players of a music object.
+-- @param startPos number (start position of the table) MUST BE A POSITIVE NUMBER & LESS THAN THE END POSITION
+-- @param endPos number (end position of the table) MUST BE A POSITIVE NUMBER & MORE THAN THE START POSITION
+-- @return table (table of whitelisted players)
+function GMusic:GetWhitelisted(startPos, endPos)
+    startPos = startPos or 0
+    endPos = endPos or len(self.whitelisted)
+    -- If the user haven't declared a limit, we return the whole table.
+    if table.IsEmpty(self.whitelisted) then return self.whitelisted end
+    -- Else we check if limits are valid.
+    if not isnumber(startPos) or not isnumber(endPos) then return false end
+    if startPos > endPos or startPos < 0 or endPos < 0 or startPos > len(self.whitelisted) then return false end
+    -- Else we return a table with the limit.
+    local tableWhitelisted = {}
+    local i = 0
+    while i <= len(self.whitelisted) and endPos != nil and i <= endPos do
+        table.insert(tableWhitelisted, self.whitelisted[i])
+        i = i + 1
+    end
+    return tableWhitelisted
 end
 
 --- Private function that unregisterID of disconnected players.
