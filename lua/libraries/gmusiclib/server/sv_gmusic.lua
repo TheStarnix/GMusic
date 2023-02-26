@@ -182,7 +182,8 @@ function GMusic.create(url, creator, title, author, loop)
         author = author,
         modifications = "0000000000",
 
-        whitelisted = {} -- Who can hear the music
+        whitelisted = {}, -- Who can hear the music
+        numberWhitelisted = 1, -- Number of players who can hear the music
     }, GMusic)
     self.whitelisted[creator] = true
     GMusic.CurrentAudios[id] = self -- Add the object to the list of current music
@@ -331,9 +332,10 @@ end
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:AddPlayer(ply)
     if not IsValid(ply) then return false end
-    if not self.whitelisted then
+    if not self.whitelisted[ply] then
         self.whitelisted[ply] = true
         playersListeningMusic[ply] = self.id -- Add the player to the list of players listening music
+        self.numberWhitelisted = self.numberWhitelisted + 1
         return AddEdit(tableModifications.whitelist, self)
     else
         return false
@@ -348,6 +350,7 @@ function GMusic:RemovePlayer(ply)
     if self.whitelisted then
         self.whitelisted[ply] = nil
         playersListeningMusic[ply] = nil -- Add the player to the list of players listening music
+        self.numberWhitelisted = self.numberWhitelisted - 1
         return AddEdit(tableModifications.whitelist, self)
     else
         return false
@@ -365,7 +368,12 @@ function GMusic.GetPlayerMusic(ply)
     else
         return false
     end
-    return playersListeningMusic[ply]
+end
+
+--- Public function to get the number of players listening the music.
+-- @return number (number of players listening the music)
+function GMusic:GetNumberWhitelisted()
+    return self.numberWhitelisted
 end
 
 --- Public function to stop the music.
@@ -388,18 +396,27 @@ end
 -- @param endPos number (end position of the table) MUST BE A POSITIVE NUMBER & MORE THAN THE START POSITION
 -- @return table (table of whitelisted players)
 function GMusic:GetWhitelisted(startPos, endPos)
+    -- Default values if the user don't declare them.
+    local lengthTable = self.numberWhitelisted
     startPos = startPos or 0
-    endPos = endPos or len(self.whitelisted)
+    endPos = endPos or lengthTable
+
     -- If the user haven't declared a limit, we return the whole table.
-    if table.IsEmpty(self.whitelisted) then return self.whitelisted end
+    if startPos == 0 and endPos == lengthTable then 
+        return self.whitelisted
+    end
     -- Else we check if limits are valid.
     if not isnumber(startPos) or not isnumber(endPos) then return false end
-    if startPos > endPos or startPos < 0 or endPos < 0 or startPos > len(self.whitelisted) then return false end
-    -- Else we return a table with the limit.
+    if startPos > endPos or startPos < 0 or endPos < 0 or startPos > lengthTable then return false end
+    -- We return a table with the limit.
     local tableWhitelisted = {}
     local i = 0
-    while i <= len(self.whitelisted) and endPos != nil and i <= endPos do
-        table.insert(tableWhitelisted, self.whitelisted[i])
+    for k, v in pairs(self.whitelisted) do
+        if i >= startPos and i <= endPos then
+            table.insert(tableWhitelisted, k)
+        elseif i > endPos then
+            break
+        end
         i = i + 1
     end
     return tableWhitelisted
