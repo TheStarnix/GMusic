@@ -19,7 +19,7 @@ local tableModifications = {
     duration    = b"0000100000",
     whitelisted = b"0001000000",
     loop        = b"0010000000",
-    author      = b"0100000000",
+    creator      = b"0100000000",
     title       = b"1000000000",
 
     all         = b"1111111111"
@@ -33,7 +33,6 @@ local modifications_blen = math.ceil( math.log(tableModifications.all, 2) )
 local function CreateMusic(informations)
     if not informations then return end
     local stream_owner = informations.creator or LocalPlayer()
-    print("music")
     -- Play the music
     local flags = "noblock noplay"
     sound.PlayURL(informations.url, flags, function(audioChannel, errorID, errorName)
@@ -63,9 +62,7 @@ end
 -- Function that receive the music.
 net.Receive("GMusic_SendSong", function()
     local informations = net.ReadTable()
-    print("Reçu OK")
     if not table.IsEmpty(informations) then
-        print("Pas infos")
         GLocalMusic.CurrentAudio = CreateMusic(informations)
     end
 end)  
@@ -74,14 +71,12 @@ end)
 --- Function that change the state of the music. (Playing/Stopped=>DETROYED)
 -- @return boolean (true if the music has been played/stopped, false if not)
 function GLocalMusic.Stop()
-    print("Appelé")
     if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not GLocalMusic.CurrentAudio.audioChannel:IsValid() then  -- Object not existing
         RunConsoleCommand("stopsound")
         return false 
     else
         GLocalMusic.CurrentAudio.audioChannel:Stop() -- Stop the music
         GLocalMusic.CurrentAudio.CurrentAudio = nil -- Remove the audioChannel
-        print("Stop")
         return true
     end 
 end
@@ -90,17 +85,13 @@ end
 -- @param state boolean (true if the music will be paused, false if it will be resumed)
 -- @return boolean (true if the music has been paused/resumed, false if not)
 function GLocalMusic.SetPause(state)
-    print(GLocalMusic.CurrentAudio.pause)
     if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel then return end -- Object not existing
     GLocalMusic.CurrentAudio.pause = state
     if not GLocalMusic.CurrentAudio.pause and GLocalMusic.CurrentAudio.audioChannel:IsValid() then -- If the music isn't playing and the audioChannel is existing
         GLocalMusic.CurrentAudio.audioChannel:Play() -- Play the music
-        print("Play")
     elseif GLocalMusic.CurrentAudio.pause and GLocalMusic.CurrentAudio.audioChannel:IsValid() then -- If the music is playing and the audioChannel is existing
         GLocalMusic.CurrentAudio.audioChannel:Pause() -- Stop the music
-        print("Stop")
     else
-        print("Error")
         return false
     end
     return true
@@ -148,13 +139,19 @@ function GLocalMusic.SetTime(time)
     return true
 end
 
---- Function that change the author of the music.
--- @param author string (author of the music)
--- @return boolean (true if the author has been changed, false if not)
-function GLocalMusic.SetAuthor(author)
-    if not GLocalMusic.CurrentAudio or not author then return false end -- Object not existing
-    GLocalMusic.CurrentAudio.author = author
+--- Function that change the creator of the music.
+-- @param creator string (creator of the music)
+-- @return boolean (true if the creator has been changed, false if not)
+function GLocalMusic.SetCreator(creator)
+    if not GLocalMusic.CurrentAudio or not creator then return false end -- Object not existing
+    GLocalMusic.CurrentAudio.creator = creator
     return true
+end
+
+--- Function that get the creator of the music.
+-- @return string (creator of the music)
+function GLocalMusic.GetCreator()
+    return GLocalMusic.CurrentAudio.creator
 end
 
 --- Function that change the title of the music.
@@ -164,6 +161,12 @@ function GLocalMusic.SetTitle(title)
     if not GLocalMusic.CurrentAudio or not title then return false end -- Object not existing
     GLocalMusic.CurrentAudio.title = title
     return true
+end
+
+--- Function that get the title of the music.
+-- @return string (title of the music)
+function GLocalMusic.GetTitle()
+    return GLocalMusic.CurrentAudio.title
 end
 
 --- Function that return if the music is created or not by using the GLocalMusic:CurrentAudio variable.
@@ -224,21 +227,17 @@ local function AddEdit(modificationsBits)
         GLocalMusic.SetURL(editUrl)
     end
     if bit.band(modificationsBits, tableModifications.playing) ~= 0 then -- If the modification is the playing state
-        print("Stop modification")
         GLocalMusic.Stop()
     end
     if bit.band(modificationsBits, tableModifications.pause) ~= 0 then -- If the modification is the state of the music
-        print("PAUSE")
         local editPause = net.ReadBool()
         GLocalMusic.SetPause(editPause)
     end
     if bit.band(modificationsBits, tableModifications.volume) ~= 0  then -- If the modification is the volume
-        print("VOLUME")
         local editVolume = net.ReadFloat()
         GLocalMusic.SetVolume(editVolume)
     end
     if bit.band(modificationsBits, tableModifications.time) ~= 0 then -- If the modification is the time
-        print("TIME")
         local editTime = net.ReadFloat()
         GLocalMusic.SetTime(editTime)
     end
@@ -246,9 +245,9 @@ local function AddEdit(modificationsBits)
         local editLoop = net.ReadBool()
         GLocalMusic.SetLoop(editLoop)
     end
-    if bit.band(modificationsBits, tableModifications.author) ~= 0  then -- If the modification is the author
-        local editAuthor = net.ReadString()
-        GLocalMusic.SetAuthor(editAuthor)
+    if bit.band(modificationsBits, tableModifications.creator) ~= 0  then -- If the modification is the creator
+        local editCreator = net.ReadString()
+        GLocalMusic.SetCreator(editCreator)
     end
     if bit.band(modificationsBits, tableModifications.title) ~= 0  then -- If the modification is the title
         local editTitle = net.ReadString()

@@ -22,7 +22,7 @@ local tableModifications = {
     duration    = b"0000100000",
     whitelisted = b"0001000000",
     loop        = b"0010000000",
-    author      = b"0100000000",
+    creator      = b"0100000000",
     title       = b"1000000000",
 
     all         = b"1111111111"
@@ -129,9 +129,9 @@ local function AddEdit(modification, self, receiver)
             print(tableModifications.loop)
             net.WriteBool(self.loop)
         end
-        if bit.band(modification, tableModifications.author) ~= 0 then -- If the modification is the author
-            print("AUTHOR OK")
-            net.WriteString(self.author)
+        if bit.band(modification, tableModifications.creator) ~= 0 then -- If the modification is the creator
+            print("CREATOR OK")
+            net.WriteString(self.creator)
         end
         if bit.band(modification, tableModifications.title) ~= 0 then -- If the modification is the title
             print("TITLE OK")
@@ -159,10 +159,9 @@ end
 -- @param url string (url of the music)
 -- @param creator Player (player who created the music)
 -- @param title string (title of the music)
--- @param author string (author of the music)
 -- @param loop boolean (true if the music is looped, false if not)
 -- @return table (music object)
-function GMusic.create(url, creator, title, author, loop)
+function GMusic.create(url, creator, title, loop)
     local id = registerID(creator)
     if not id then return end
     local self = setmetatable({
@@ -179,7 +178,6 @@ function GMusic.create(url, creator, title, author, loop)
         duration = 0,
 
         title = title,
-        author = author,
         modifications = "0000000000",
 
         whitelisted = {}, -- Who can hear the music
@@ -240,19 +238,13 @@ function GMusic:SetTitle(title)
     return AddEdit(tableModifications.title, self)
 end
 
---- Public Method to get the object author.
--- @return string (author of the object)
-function GMusic:GetAuthor()
-    return self.author
-end
-
---- Public Method to set the object author.
--- @param author string (author of the object)
+--- Public Method to set the object creator.
+-- @param creator string (creator of the object)
 -- @return boolean (true if the modification has been added, false if not existing/error)
-function GMusic:SetAuthor(author)
-    if not isstring(author) then return false end
-    self.author = author
-    return AddEdit(tableModifications.author, self)
+function GMusic:SetCreator(creator)
+    if not isstring(creator) then return false end
+    self.creator = creator
+    return AddEdit(tableModifications.creator, self)
 end
 
 --- Public Method to get the object loop.
