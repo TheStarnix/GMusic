@@ -1,10 +1,27 @@
+/*
+        GMusic - A music library for Garry's Mod
+    
+        GMusic is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation.
+    
+        GMusic is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+    
+        You should have received a copy of the GNU General Public License
+        along with GMusic. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 --- Class used to handle all the system behind the music (like timers, etc.) (SERVERSIDE)
 -- @module GMusic
 _G.GMusic = {}
 GMusic.__index = GMusic-- If a key cannot be found in an object, it will look in it's metatable's __index metamethod.
 GMusic.CurrentAudios = {} -- @field CurrentAudios Table used to store all music objects. (SERVERSIDE)
 
-GMusic.maxID = 5 -- @field maxID Maximum number of music that can be played at the same time. (SERVERSIDE)
+GMusic.maxID = 15 -- @field maxID Maximum number of music that can be played at the same time. (SERVERSIDE)
+
 local GMusicCount = 0
 
 --- Return the binary value of a string.
@@ -95,46 +112,30 @@ local function AddEdit(modification, self, receiver)
 
         --Here, we don't use a for bc it's more efficient to do it like this with a short tableModifications.
         if bit.band(modification, tableModifications.url) ~= 0 then -- If the modification is the URL
-            print("URL OK")
-            print(tableModifications.url)
             net.WriteString(self.url)
         end
         if bit.band(modification, tableModifications.playing) ~= 0 then -- If the modification is the playing state
-            print("PLAYING OK")
-            print(tableModifications.playing)
             net.WriteBool(self.playing)
         end
         if bit.band(modification, tableModifications.pause) ~= 0 then -- If the modification is the state of the music
-            print("PAUSE OK")
-            print(tableModifications.pause)
             net.WriteBool(self.pause)
         end
         if bit.band(modification, tableModifications.volume) ~= 0 then -- If the modification is the volume
-            print("VOLUME OK")
-            print(tableModifications.volume)
             net.WriteFloat(self.volume)
         end
         if bit.band(modification, tableModifications.time) ~= 0 then -- If the modification is the time
-            print("TIME OK")
-            print(tableModifications.time)
             net.WriteFloat(self.time)
         end
         if bit.band(modification, tableModifications.duration) ~= 0 then -- If the modification is the duration
-            print("DURATION OK")
-            print(tableModifications.duration)
             net.WriteFloat(self.duration)
         end
         if bit.band(modification, tableModifications.loop) ~= 0 then -- If the modification is the loop state
-            print("LOOP OK")
-            print(tableModifications.loop)
             net.WriteBool(self.loop)
         end
         if bit.band(modification, tableModifications.creator) ~= 0 then -- If the modification is the creator
-            print("CREATOR OK")
             net.WriteString(self.creator)
         end
         if bit.band(modification, tableModifications.title) ~= 0 then -- If the modification is the title
-            print("TITLE OK")
             net.WriteString(self.title)
         end
         net.Send(receiver) -- Send the modification to whitelisted players
@@ -146,13 +147,29 @@ end
 -- @return boolean (true if the music has been deleted, false if not existing)
 function GMusic:Delete()
     if not self then return false end
-    PrintTable(self)
     if self.playing then
         self.playing = false
         AddEdit(tableModifications.playing, self, nil)
     end
     unregisterID(self.id)
     return true -- Return true if the music has been deleted
+end
+
+--- Local function to verify if a URL is in the whitelist.
+-- @param url string (url to check)
+-- @return boolean (true if the url is in the whitelist, false if not)
+local function isURLInWhitelist(url)
+    for k, v in pairs(GMusicConfig.whitelistedLinks) do
+        if not url:match("^https://.+") or url:match("^http://.+") then return end
+        if string.match(url, k) then
+            if GMusicConfig.whitelistedLinksFunctionNeed[v] then
+                url = GMusicConfig.whitelistedLinksFunction[v](url)
+                if not url then return false end
+            end
+            return url
+        end
+    end
+    return false
 end
 
 --- Public Function which create the music object.
@@ -162,6 +179,13 @@ end
 -- @param loop boolean (true if the music is looped, false if not)
 -- @return table (music object)
 function GMusic.create(url, creator, title, loop)
+    local urlWhitelist = isURLInWhitelist(url)
+    if not urlWhitelist then
+        creator:PrintMessage(HUD_PRINTTALK, "GMusic: The URL is not in the whitelist.")
+        return
+    else
+        url = urlWhitelist
+    end
     local id = registerID(creator)
     if not id then return end
     local self = setmetatable({
@@ -192,6 +216,7 @@ end
 --- Public Method to get the object ID.
 -- @return number
 function GMusic:GetID()
+    if not self then return end
     return self.id
 end
 
@@ -206,6 +231,7 @@ end
 --- Public Method to get the object URL.
 -- @return string
 function GMusic:GetURL()
+    if not self then return end
     return self.url
 end
 
@@ -213,19 +239,28 @@ end
 -- @param url string (url of the music)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetURL(url)
+    if not self then return end
     if not isstring(url) then return false end
-    --TODO: Check if the URL is inside a whitelist AND complete the function.
+    local urlWhitelist = isURLInWhitelist(url)
+    if not urlWhitelist then
+        return false
+    else
+        self.url = urlWhitelist
+        return AddEdit(tableModifications.url, self)
+    end
 end
 
 --- Public Method to get the object creator.
 -- @return Player (creator of the object)
 function GMusic:GetCreator()
+    if not self then return end
     return self.creator
 end
 
 --- Public Method to get the object Title.
 -- @return string (title of the object)
 function GMusic:GetTitle()
+    if not self then return end
     return self.title
 end
 
@@ -233,6 +268,7 @@ end
 -- @param title string (title of the object)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetTitle(title)
+    if not self then return end
     if not isstring(title) then return false end
     self.title = title
     return AddEdit(tableModifications.title, self)
@@ -242,6 +278,7 @@ end
 -- @param creator string (creator of the object)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetCreator(creator)
+    if not self then return end
     if not isstring(creator) then return false end
     self.creator = creator
     return AddEdit(tableModifications.creator, self)
@@ -250,6 +287,7 @@ end
 --- Public Method to get the object loop.
 -- @return boolean (true if the object is looped, false if not)
 function GMusic:GetLoop()
+    if not self then return end
     return self.loop
 end
 
@@ -257,6 +295,7 @@ end
 -- @param loop boolean (true if the object is looped, false if not)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetLoop(loop)
+    if not self then return end
     if not isbool(loop) then return false end
     self.loop = loop
     return AddEdit(tableModifications.loop, self)
@@ -265,6 +304,7 @@ end
 --- Public Method to get the object volume.
 -- @return number (volume of the object)
 function GMusic:GetVolume()
+    if not self then return end
     return self.volume
 end 
 
@@ -272,6 +312,7 @@ end
 -- @param volume number (volume of the object)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetVolume(volume)
+    if not self then return end
     if not isnumber(volume) then return false end
     self.volume = volume
     return AddEdit(tableModifications.volume, self)
@@ -280,12 +321,14 @@ end
 --- Public Method that return if the music is playing.
 -- @return boolean (true if the music is playing, false if not)
 function GMusic:IsPlaying()
+    if not self then return end
     return self.playing
 end
 
 --- Public Method that return if the music is paused.
 -- @return boolean (true if the music is paused, false if not)
 function GMusic:IsPaused()
+    if not self then return end
     return self.pause
 end
 
@@ -300,6 +343,7 @@ end
 --- Public Method to get the length of the music.
 -- @return number (length of the music)
 function GMusic:GetDuration()
+    if not self then return end
     return self.duration
 end
 
@@ -307,6 +351,7 @@ end
 --- Public Method to get the time of the music.
 -- @return number (time of the music)
 function GMusic:GetTime()
+    if not self then return end
     return self.time
 end
 
@@ -314,6 +359,7 @@ end
 -- @param time number (time of the music)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:SetTime(time)
+    if not self then return end
     if not isnumber(time) then return false end
     self.time = time
     return AddEdit(tableModifications.time, self)
@@ -323,11 +369,13 @@ end
 -- @param ply Player (player to add)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:AddPlayer(ply)
+    if not self then return end
     if not IsValid(ply) then return false end
     if not self.whitelisted[ply] then
         self.whitelisted[ply] = true
         playersListeningMusic[ply] = self.id -- Add the player to the list of players listening music
         self.numberWhitelisted = self.numberWhitelisted + 1
+        sendMusicToPlayer(self, ply)
         return AddEdit(tableModifications.whitelist, self)
     else
         return false
@@ -338,11 +386,13 @@ end
 -- @param ply Player (player to remove)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:RemovePlayer(ply)
+    if not self then return end
     if not IsValid(ply) then return false end
     if self.whitelisted then
         self.whitelisted[ply] = nil
         playersListeningMusic[ply] = nil -- Add the player to the list of players listening music
         self.numberWhitelisted = self.numberWhitelisted - 1
+        self:Stop(ply)
         return AddEdit(tableModifications.whitelist, self)
     else
         return false
@@ -365,13 +415,16 @@ end
 --- Public function to get the number of players listening the music.
 -- @return number (number of players listening the music)
 function GMusic:GetNumberWhitelisted()
+    if not self then return end
     return self.numberWhitelisted
 end
 
 --- Public function to stop the music.
--- @param playing boolean (true if the music is playing, false if not)
+-- @param ply Player (player who stop the music)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:Stop(ply)
+    if not self then return end
+    if not IsValid(ply) then return false end
     if self:GetCreator() == ply then -- If the player is the creator of the music, we stop the music for everyone.
         return self:Delete()
     else -- If the player is not the creator of the music, we stop the music only for him.
@@ -388,6 +441,7 @@ end
 -- @param endPos number (end position of the table) MUST BE A POSITIVE NUMBER & MORE THAN THE START POSITION
 -- @return table (table of whitelisted players)
 function GMusic:GetWhitelisted(startPos, endPos)
+    if not self then return end
     -- Default values if the user don't declare them.
     local lengthTable = self.numberWhitelisted
     startPos = startPos or 0
@@ -399,19 +453,52 @@ function GMusic:GetWhitelisted(startPos, endPos)
     end
     -- Else we check if limits are valid.
     if not isnumber(startPos) or not isnumber(endPos) then return false end
+    if endPos > lengthTable then endPos = lengthTable end
     if startPos > endPos or startPos < 0 or endPos < 0 or startPos > lengthTable then return false end
     -- We return a table with the limit.
     local tableWhitelisted = {}
     local i = 0
     for k, v in pairs(self.whitelisted) do
         if i >= startPos and i <= endPos then
-            table.insert(tableWhitelisted, k)
+            tableWhitelisted[k] = true
         elseif i > endPos then
             break
         end
         i = i + 1
     end
     return tableWhitelisted
+end
+
+--- Public function to get all music objects.
+-- @param startPos number (start position of the table) MUST BE A POSITIVE NUMBER & LESS THAN THE END POSITION
+-- @param endPos number (end position of the table) MUST BE A POSITIVE NUMBER & MORE THAN THE START POSITION
+-- @return table (table of music objects)
+function GMusic.GetAll(startPos, endPos)
+    -- Default values if the user don't declare them.
+    local lengthTable = #GMusic.CurrentAudios
+    startPos = startPos or 0
+    endPos = endPos or lengthTable
+
+    -- If the user haven't declared a limit, we return the whole table.
+    if startPos == 0 and endPos == lengthTable then 
+        return GMusic.CurrentAudios
+    end
+    -- Else we check if limits are valid.
+    if not isnumber(startPos) or not isnumber(endPos) then return false end
+    if endPos > lengthTable then endPos = lengthTable end
+    if startPos > endPos or startPos < 0 or endPos < 0 or startPos > lengthTable then return false end
+    -- We return a table with the limit.
+    local tableGMusic = {}
+    local i = 0
+    for k, v in pairs(GMusic.CurrentAudios) do
+        if i >= startPos and i <= endPos then
+            table.insert(tableGMusic, v)
+        elseif i > endPos then
+            break
+        end
+        i = i + 1
+    end
+    return tableGMusic
 end
 
 --- Private function that unregisterID of disconnected players.

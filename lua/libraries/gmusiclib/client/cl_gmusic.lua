@@ -1,3 +1,20 @@
+/*
+        GMusic - A music library for Garry's Mod
+    
+        GMusic is free software: you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation.
+    
+        GMusic is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+    
+        You should have received a copy of the GNU General Public License
+        along with GMusic. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 --- Class used to handle all the system behind the music (like timers, etc.) (CLIENTSIDE)
 -- @module GLocalMusic
 _G.GLocalMusic = {}
@@ -47,10 +64,16 @@ local function CreateMusic(informations)
         informations.audioChannel = audioChannel
         informations.length = audioChannel:GetLength()
         informations.fileName = audioChannel:GetFileName()
+        informations.isBlockstreamed = audioChannel:IsBlockStreamed()
 
         audioChannel:SetVolume(informations.volume)
-        audioChannel:EnableLooping(informations.loop)
-        audioChannel:EnableLooping(informations.loop)
+        if not informations.isBlockstreamed then
+            audioChannel:EnableLooping(informations.loop)
+        else -- Blockstreamed music can't be looped
+            audioChannel:EnableLooping(false)
+            LocalPlayer():PrintMessage(HUD_PRINTTALK, "Music is blockstreamed, looping disabled.")
+        end
+        
         audioChannel:Set3DEnabled(false)
         audioChannel:Play()
         
@@ -76,7 +99,7 @@ function GLocalMusic.Stop()
         return false 
     else
         GLocalMusic.CurrentAudio.audioChannel:Stop() -- Stop the music
-        GLocalMusic.CurrentAudio.CurrentAudio = nil -- Remove the audioChannel
+        GLocalMusic.CurrentAudio = nil -- Remove the audioChannel
         return true
     end 
 end
@@ -124,6 +147,10 @@ end
 -- @return boolean (true if the loop state has been changed, false if not)
 function GLocalMusic.SetLoop(loop)
     if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not loop then return false end -- Object not existing
+    if GLocalMusic.CurrentAudio.isBlockstreamed then
+        LocalPlayer():PrintMessage(HUD_PRINTTALK, "Music is blockstreamed, looping disabled.")
+        return false
+    end
     GLocalMusic.CurrentAudio.loop = loop
     GLocalMusic.CurrentAudio.audioChannel:EnableLooping(loop) -- Set the loop state
     return true
@@ -134,6 +161,10 @@ end
 -- @return boolean (true if the time has been changed, false if not)
 function GLocalMusic.SetTime(time)
     if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not time then return false end -- Object not existing
+    if GLocalMusic.CurrentAudio.isBlockstreamed then
+        LocalPlayer():PrintMessage(HUD_PRINTTALK, "Music is blockstreamed, time can't be changed.")
+        return false
+    end
     GLocalMusic.CurrentAudio.time = time
     GLocalMusic.CurrentAudio.audioChannel:SetTime(time) -- Set the time
     return true
@@ -166,13 +197,14 @@ end
 --- Function that get the title of the music.
 -- @return string (title of the music)
 function GLocalMusic.GetTitle()
+    if not GLocalMusic.CurrentAudio then return "" end -- Object not existing
     return GLocalMusic.CurrentAudio.title
 end
 
 --- Function that return if the music is created or not by using the GLocalMusic:CurrentAudio variable.
 -- @return boolean (true if the music is created, false if not)
 function GLocalMusic.IsCreated()
-    if GLocalMusic.CurrentAudio and GLocalMusic.CurrentAudio.audioChannel and GLocalMusic.CurrentAudio.audioChannel:IsValid() then
+    if GLocalMusic.CurrentAudio then
         return true
     else
         return false
