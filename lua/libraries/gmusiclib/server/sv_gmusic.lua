@@ -16,13 +16,13 @@
 
 --- Class used to handle all the system behind the music (like timers, etc.) (SERVERSIDE)
 -- @module GMusic
-_G.GMusic = {}
+_G.GMusic = _G.GMusic or {}
 GMusic.__index = GMusic-- If a key cannot be found in an object, it will look in it's metatable's __index metamethod.
-GMusic.CurrentAudios = {} -- @field CurrentAudios Table used to store all music objects. (SERVERSIDE)
+GMusic.CurrentAudios = GMusic.CurrentAudios or {} -- @field CurrentAudios Table used to store all music objects. (SERVERSIDE)
 
 GMusic.maxID = 15 -- @field maxID Maximum number of music that can be played at the same time. (SERVERSIDE)
 
-local GMusicCount = 0
+local GMusicCount = GMusicCount or 0
 
 --- Return the binary value of a string.
 local function b(str)
@@ -44,7 +44,7 @@ local tableModifications = {
 
     all         = b"1111111111"
 }
-local playersListeningMusic = {}
+local playersListeningMusic = playersListeningMusic or {}
 
 -- Bits needed to send a bitflag of all the modifications
 local modifications_blen = math.ceil( math.log(tableModifications.all, 2) )
@@ -71,10 +71,10 @@ local function unregisterID(id)
     GMusic.CurrentAudios[id] = nil
 end
 
---- Local function that check if a player is listening a music.
+--- Method that return if a player is listening a music.
 -- @param player Player (player to check)
 -- @return boolean (true if the player is listening a music, false if not)
-local function isListeningMusic(player)
+function GMusic.isListeningMusic(player)
     return playersListeningMusic[player] ~= nil
 end
 
@@ -177,8 +177,9 @@ end
 -- @param creator Player (player who created the music)
 -- @param title string (title of the music)
 -- @param loop boolean (true if the music is looped, false if not)
+-- @param time number (time of the music)
 -- @return table (music object)
-function GMusic.create(url, creator, title, loop)
+function GMusic.create(url, creator, title, loop, time)
     local urlWhitelist = isURLInWhitelist(url)
     if not urlWhitelist then
         creator:PrintMessage(HUD_PRINTTALK, "GMusic: The URL is not in the whitelist.")
@@ -188,6 +189,7 @@ function GMusic.create(url, creator, title, loop)
     end
     local id = registerID(creator)
     if not id then return end
+    if not time then time = 0 end
     local self = setmetatable({
         id = id,
         url = url,
@@ -198,7 +200,7 @@ function GMusic.create(url, creator, title, loop)
         pause = false,
 
         volume = 1,
-        time = 0,
+        time = time,
         duration = 0,
 
         title = title,
@@ -348,6 +350,24 @@ function GMusic:GetDuration()
 end
 
 
+--- Public Method to set the time of the music without updating for all player.
+function GMusic:UpdateTime()
+    if not self then return end
+    local creatorMusic = self:GetCreator()
+    if not IsValid(creatorMusic) then return end
+    net.Start("GMusic_GetTime")
+    net.Send(creatorMusic)
+end
+
+net.Receive("GMusic_SendTime", function(len, ply)
+    local timeMusic = net.ReadString()
+    timeMusic = tonumber(timeMusic)
+    if not isnumber(timeMusic) then return end
+    local musicObject = GMusic.GetPlayerMusic(ply)
+    if not musicObject then return end
+    musicObject.time = timeMusic
+end)
+
 --- Public Method to get the time of the music.
 -- @return number (time of the music)
 function GMusic:GetTime()
@@ -367,10 +387,21 @@ end
 
 --- Public Method to add a player to the whitelist.
 -- @param ply Player (player to add)
+-- @param force boolean (true if you want to force the player to listen music, false if not. If forced: we stop his listening music and we start the new one)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:AddPlayer(ply)
     if not self then return end
     if not IsValid(ply) then return false end
+    if playersListeningMusic[ply] then 
+        if not force then 
+            return false 
+        else
+            local musicObject = GMusic.GetPlayerMusic(ply)
+            if musicObject then
+                musicObject:RemovePlayer(ply)
+            end
+        end
+    end -- If the player is already listening music, return false
     if not self.whitelisted[ply] then
         self.whitelisted[ply] = true
         playersListeningMusic[ply] = self.id -- Add the player to the list of players listening music
@@ -503,7 +534,7 @@ end
 
 --- Private function that unregisterID of disconnected players.
 hook.Add("PlayerDisconnected", "GMusicLib_PlayerDisconnected", function(ply)
-    if isListeningMusic(ply) then
+    if GMusic.isListeningMusic(ply) then
         -- If the player is the creator a music object, we delete it, else we remove him from the whitelist.
         local music = GMusic:GetPlayerMusic(ply)
         if not music then return end
