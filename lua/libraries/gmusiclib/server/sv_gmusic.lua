@@ -150,6 +150,9 @@ function GMusic:Delete()
     if self.playing then
         self.playing = false
         AddEdit(tableModifications.playing, self, nil)
+        for k, _ in pairs(self.whitelisted) do
+            playersListeningMusic[k] = nil
+        end
     end
     unregisterID(self.id)
     return true -- Return true if the music has been deleted
@@ -172,14 +175,27 @@ local function isURLInWhitelist(url)
     return false
 end
 
+-- Public method to return if a player is a staff
+-- @param player Player (player to check)
+-- @return boolean (true if the player is a staff, false if not)
+function GMusic.isStaff(player)
+    if not player then return false end
+    if GMusicConfig.staff[player:GetUserGroup()] then
+        return true
+    else
+        return false
+    end
+end
+
 --- Public Function which create the music object.
 -- @param url string (url of the music)
 -- @param creator Player (player who created the music)
 -- @param title string (title of the music)
 -- @param loop boolean (true if the music is looped, false if not)
 -- @param time number (time of the music)
+-- @param canEveryonePause boolean (true if everyone can pause the music, false if not)
 -- @return table (music object)
-function GMusic.create(url, creator, title, loop, time)
+function GMusic.create(url, creator, title, loop, time, canEveryonePause)
     local urlWhitelist = isURLInWhitelist(url)
     if not urlWhitelist then
         creator:PrintMessage(HUD_PRINTTALK, "GMusic: The URL is not in the whitelist.")
@@ -198,6 +214,7 @@ function GMusic.create(url, creator, title, loop, time)
 
         playing = true,
         pause = false,
+        canEveryonePause = canEveryonePause,
 
         volume = 1,
         time = time,
@@ -335,11 +352,17 @@ function GMusic:IsPaused()
 end
 
 --- Public Method to set if this music is paused.
+-- @param player Player (player who want to pause the music)
 -- @return boolean (true if the modification has been added, false if not existing/error)
-function GMusic:Pause()
+function GMusic:Pause(player)
     if not self then return false end
-    self.pause = !self.pause
-    return AddEdit(tableModifications.pause, self)
+    if not IsValid(player) then return false end
+    if self.canEveryonePause or self:GetCreator() == player or GMusic.isStaff(player) then
+        self.pause = !self.pause
+        return AddEdit(tableModifications.pause, self)
+    else
+        return false
+    end
 end
 
 --- Public Method to get the length of the music.
@@ -463,6 +486,7 @@ function GMusic:Stop(ply)
         temporary.playing = false
         AddEdit(tableModifications.playing, temporary, ply) -- We only send the modification to the player, not all.
         self.whitelisted[ply] = nil
+        playersListeningMusic[ply] = nil
         return AddEdit(tableModifications.whitelist, self, nil)
     end
 end

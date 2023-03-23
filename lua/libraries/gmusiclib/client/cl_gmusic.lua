@@ -79,18 +79,24 @@ local function CreateMusic(informations)
         end
         
         audioChannel:Set3DEnabled(false)
-        if informations.time != 0 and not informations.isBlockstreamed then
-            audioChannel:SetTime(informations.time)
-        end
         if informations.pause then
             audioChannel:Pause()
         else
             audioChannel:Play()
         end
-
-        
     end)
+    if informations.time != 0 and not informations.isBlockstreamed then
+        timer.Simple(1, function()
+            if informations.audioChannel ~= nil then
+                local numberTime = tonumber(informations.time)
+                if isnumber(numberTime) then
+                    informations.audioChannel:SetTime(numberTime, false)
+                end
+            end
+        end)
+    end
     return informations
+
 
 end
 
@@ -144,7 +150,6 @@ function GLocalMusic.Stop()
         RunConsoleCommand("stopsound")
         return false 
     else
-        print("Bien stop")
         GLocalMusic.CurrentAudio.audioChannel:Stop() -- Stop the music
         GLocalMusic.CurrentAudio = nil -- Remove the audioChannel
         return true
