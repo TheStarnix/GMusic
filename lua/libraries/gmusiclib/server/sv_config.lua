@@ -41,3 +41,9 @@ GMusicConfig.whitelistedLinksFunction = {
         return "https://youtubedl.mattjeanes.com/play?id=" .. id
     end
 }
+GMusicConfig.staff = {
+    ["superadmin"] = true,
+    ["admin"] = true,
+    ["moderator"] = true,
+    -- ["group"] = true,
+}

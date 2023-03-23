@@ -50,6 +50,9 @@ local modifications_blen = math.ceil( math.log(tableModifications.all, 2) )
 local function CreateMusic(informations)
     if not informations then return end
     local stream_owner = informations.creator or LocalPlayer()
+    if GLocalMusic.IsCreated() then
+        GLocalMusic.Stop() -- Stop the current music if there is one
+    end
     -- Play the music
     local flags = "noblock noplay"
     sound.PlayURL(informations.url, flags, function(audioChannel, errorID, errorName)
@@ -67,6 +70,7 @@ local function CreateMusic(informations)
         informations.isBlockstreamed = audioChannel:IsBlockStreamed()
 
         audioChannel:SetVolume(informations.volume)
+        
         if not informations.isBlockstreamed then
             audioChannel:EnableLooping(informations.loop)
         else -- Blockstreamed music can't be looped
@@ -75,10 +79,24 @@ local function CreateMusic(informations)
         end
         
         audioChannel:Set3DEnabled(false)
-        audioChannel:Play()
-        
+        if informations.pause then
+            audioChannel:Pause()
+        else
+            audioChannel:Play()
+        end
     end)
+    if informations.time != 0 and not informations.isBlockstreamed then
+        timer.Simple(1, function()
+            if informations.audioChannel ~= nil then
+                local numberTime = tonumber(informations.time)
+                if isnumber(numberTime) then
+                    informations.audioChannel:SetTime(numberTime, false)
+                end
+            end
+        end)
+    end
     return informations
+
 
 end
 
@@ -88,13 +106,47 @@ net.Receive("GMusic_SendSong", function()
     if not table.IsEmpty(informations) then
         GLocalMusic.CurrentAudio = CreateMusic(informations)
     end
-end)  
+end)
+net.Receive("GMusic_GetTime", function()
+    if GLocalMusic.IsValidSong() then
+        local timeMusic = GLocalMusic.GetTime()
+        if not isnumber(timeMusic) then
+            timeMusic = "0"
+        else
+            timeMusic = tostring(timeMusic)
+        end
+        net.Start("GMusic_SendTime")
+            net.WriteString(timeMusic)
+        net.SendToServer()
+    end
+end)
+
+
+--- Function that return if the music is created or not by using the GLocalMusic.CurrentAudio variable.
+-- @return boolean (true if the music is created, false if not)
+function GLocalMusic.IsCreated()
+    if GLocalMusic.CurrentAudio and next(GLocalMusic.CurrentAudio) ~= nil then -- Check if the table is empty
+        return true
+    else
+        return false
+    end
+end
+
+--- Function that return if the music is valid or not by using the GLocalMusic.CurrentAudio.audioChannel variable.
+-- @return boolean (true if the music is valid, false if not)
+function GLocalMusic.IsValidSong()
+    if GLocalMusic.CurrentAudio and GLocalMusic.CurrentAudio.audioChannel and GLocalMusic.CurrentAudio.audioChannel:IsValid() then -- Check if the table is empty
+        return true
+    else
+        return false
+    end
+end
 
 
 --- Function that change the state of the music. (Playing/Stopped=>DETROYED)
 -- @return boolean (true if the music has been played/stopped, false if not)
 function GLocalMusic.Stop()
-    if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not GLocalMusic.CurrentAudio.audioChannel:IsValid() then  -- Object not existing
+    if not GLocalMusic.IsValidSong() then  -- Object not existing
         RunConsoleCommand("stopsound")
         return false 
     else
@@ -108,7 +160,7 @@ end
 -- @param state boolean (true if the music will be paused, false if it will be resumed)
 -- @return boolean (true if the music has been paused/resumed, false if not)
 function GLocalMusic.SetPause(state)
-    if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel then return end -- Object not existing
+    if not GLocalMusic.IsValidSong() then return end -- Object not existing
     GLocalMusic.CurrentAudio.pause = state
     if not GLocalMusic.CurrentAudio.pause and GLocalMusic.CurrentAudio.audioChannel:IsValid() then -- If the music isn't playing and the audioChannel is existing
         GLocalMusic.CurrentAudio.audioChannel:Play() -- Play the music
@@ -124,7 +176,7 @@ end
 -- @param url string (url of the music)
 -- @return boolean (true if the url has been changed, false if not)
 function GLocalMusic.SetURL(url)
-    if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not url then return false end -- Object not existing
+    if not GLocalMusic.IsValidSong() or not url then return false end -- Object not existing
     GLocalMusic.CurrentAudio.url = url
     GLocalMusic.CurrentAudio.audioChannel:Stop() -- Stop the music
     GLocalMusic.CurrentAudio.audioChannel = nil -- Remove the audioChannel
@@ -136,7 +188,7 @@ end
 -- @param volume number (volume of the music)
 -- @return boolean (true if the volume has been changed, false if not)
 function GLocalMusic.SetVolume(volume)
-    if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not volume then return false end -- Object not existing
+    if not GLocalMusic.IsValidSong() or not volume then return false end -- Object not existing
     GLocalMusic.CurrentAudio.volume = volume
     GLocalMusic.CurrentAudio.audioChannel:SetVolume(volume) -- Set the volume
     return true
@@ -146,7 +198,7 @@ end
 -- @param loop boolean (true if the music will loop, false if not)
 -- @return boolean (true if the loop state has been changed, false if not)
 function GLocalMusic.SetLoop(loop)
-    if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not loop then return false end -- Object not existing
+    if not GLocalMusic.IsValidSong() or not loop then return false end -- Object not existing
     if GLocalMusic.CurrentAudio.isBlockstreamed then
         LocalPlayer():PrintMessage(HUD_PRINTTALK, "Music is blockstreamed, looping disabled.")
         return false
@@ -160,7 +212,7 @@ end
 -- @param time number (time of the music in SECONDS)
 -- @return boolean (true if the time has been changed, false if not)
 function GLocalMusic.SetTime(time)
-    if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel or not time then return false end -- Object not existing
+    if not GLocalMusic.IsValidSong() or not time then return false end -- Object not existing
     if GLocalMusic.CurrentAudio.isBlockstreamed then
         LocalPlayer():PrintMessage(HUD_PRINTTALK, "Music is blockstreamed, time can't be changed.")
         return false
@@ -174,7 +226,7 @@ end
 -- @param creator string (creator of the music)
 -- @return boolean (true if the creator has been changed, false if not)
 function GLocalMusic.SetCreator(creator)
-    if not GLocalMusic.CurrentAudio or not creator then return false end -- Object not existing
+    if not GLocalMusic.IsValidSong() or not creator then return false end -- Object not existing
     GLocalMusic.CurrentAudio.creator = creator
     return true
 end
@@ -182,6 +234,7 @@ end
 --- Function that get the creator of the music.
 -- @return string (creator of the music)
 function GLocalMusic.GetCreator()
+    if not GLocalMusic.IsValidSong() then return false end -- Object not existing
     return GLocalMusic.CurrentAudio.creator
 end
 
@@ -189,7 +242,7 @@ end
 -- @param title string (title of the music)
 -- @return boolean (true if the title has been changed, false if not)
 function GLocalMusic.SetTitle(title)
-    if not GLocalMusic.CurrentAudio or not title then return false end -- Object not existing
+    if not GLocalMusic.IsValidSong() or not title then return false end -- Object not existing
     GLocalMusic.CurrentAudio.title = title
     return true
 end
@@ -197,52 +250,42 @@ end
 --- Function that get the title of the music.
 -- @return string (title of the music)
 function GLocalMusic.GetTitle()
-    if not GLocalMusic.CurrentAudio then return "" end -- Object not existing
+    if not GLocalMusic.IsValidSong() then return "" end -- Object not existing
     return GLocalMusic.CurrentAudio.title
-end
-
---- Function that return if the music is created or not by using the GLocalMusic:CurrentAudio variable.
--- @return boolean (true if the music is created, false if not)
-function GLocalMusic.IsCreated()
-    if GLocalMusic.CurrentAudio then
-        return true
-    else
-        return false
-    end
 end
 
 --- Function that return the current time of the music.
 -- @return number (time of the music in SECONDS)
 function GLocalMusic.GetTime()
-    if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel then return 0 end -- Object not existing
+    if not GLocalMusic.IsValidSong() or not GLocalMusic.CurrentAudio.audioChannel then return 0 end -- Object not existing
     return GLocalMusic.CurrentAudio.audioChannel:GetTime()
 end
 
 --- Function that return the duration of the music.
 -- @return number (duration of the music in SECONDS)
 function GLocalMusic.GetDuration()
-    if not GLocalMusic.CurrentAudio or not GLocalMusic.CurrentAudio.audioChannel then return 0 end -- Object not existing
+    if not GLocalMusic.IsValidSong() or not GLocalMusic.CurrentAudio.audioChannel then return 0 end -- Object not existing
     return GLocalMusic.CurrentAudio.audioChannel:GetLength()
 end
 
 --- Function that return the current volume of the music.
 -- @return number (volume of the music) (0 if the music is not created)
 function GLocalMusic.GetVolume()
-    if not GLocalMusic.CurrentAudio then return 0 end -- Object not existing
+    if not GLocalMusic.IsValidSong() then return 0 end -- Object not existing
     return GLocalMusic.CurrentAudio.volume
 end
 
 --- Function that return the current loop state of the music.
 -- @return boolean (true if the music is looping, false if not)
 function GLocalMusic.GetLoop()
-    if not GLocalMusic.CurrentAudio then return false end -- Object not existing
+    if not GLocalMusic.IsValidSong() then return false end -- Object not existing
     return GLocalMusic.CurrentAudio.loop
 end
 
 --- Function that return if the music is paused or not.
 -- @return boolean (true if the music is paused, false if paused)
 function GLocalMusic.IsPaused()
-    if not GLocalMusic.CurrentAudio then return false end -- Object not existing
+    if not GLocalMusic.IsValidSong() then return false end -- Object not existing
     return GLocalMusic.CurrentAudio.pause
 end
 
