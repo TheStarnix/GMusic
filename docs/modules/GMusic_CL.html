@@ -1,0 +1,512 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>GMusic Docs</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>GMusic Docs</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><strong>GMusic_CL</strong></li>
+  <li><a href="../modules/GMusic_SV.html">GMusic_SV</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>GMusic_CL</code></h1>
+<p>Class used to handle all the system behind the music (like timers, etc.) (CLIENTSIDE)</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.IsCreated">GLocalMusic.IsCreated ()</a></td>
+	<td class="summary">Function that return if the music is created or not by using the GLocalMusic.CurrentAudio variable.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.IsValidSong">GLocalMusic.IsValidSong ()</a></td>
+	<td class="summary">Function that return if the music is valid or not by using the GLocalMusic.CurrentAudio.audioChannel variable.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.Stop">GLocalMusic.Stop ()</a></td>
+	<td class="summary">Function that change the state of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.SetPause">GLocalMusic.SetPause (state)</a></td>
+	<td class="summary">Function that change the state of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.SetURL">GLocalMusic.SetURL (url)</a></td>
+	<td class="summary">Function that change the url of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.SetVolume">GLocalMusic.SetVolume (volume)</a></td>
+	<td class="summary">Function that change the volume of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.SetLoop">GLocalMusic.SetLoop (loop)</a></td>
+	<td class="summary">Function that change the loop state of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.SetTime">GLocalMusic.SetTime (time)</a></td>
+	<td class="summary">Function that change the time of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.SetCreator">GLocalMusic.SetCreator (creator)</a></td>
+	<td class="summary">Function that change the creator of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.GetCreator">GLocalMusic.GetCreator ()</a></td>
+	<td class="summary">Function that get the creator of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.SetTitle">GLocalMusic.SetTitle (title)</a></td>
+	<td class="summary">Function that change the title of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.GetTitle">GLocalMusic.GetTitle ()</a></td>
+	<td class="summary">Function that get the title of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.GetTime">GLocalMusic.GetTime ()</a></td>
+	<td class="summary">Function that return the current time of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.GetDuration">GLocalMusic.GetDuration ()</a></td>
+	<td class="summary">Function that return the duration of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.GetVolume">GLocalMusic.GetVolume ()</a></td>
+	<td class="summary">Function that return the current volume of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.GetLoop">GLocalMusic.GetLoop ()</a></td>
+	<td class="summary">Function that return the current loop state of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GLocalMusic.IsPaused">GLocalMusic.IsPaused ()</a></td>
+	<td class="summary">Function that return if the music is paused or not.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "GLocalMusic.IsCreated"></a>
+    <strong>GLocalMusic.IsCreated ()</strong>
+    </dt>
+    <dd>
+    Function that return if the music is created or not by using the GLocalMusic.CurrentAudio variable.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the music is created, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.IsValidSong"></a>
+    <strong>GLocalMusic.IsValidSong ()</strong>
+    </dt>
+    <dd>
+    Function that return if the music is valid or not by using the GLocalMusic.CurrentAudio.audioChannel variable.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the music is valid, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.Stop"></a>
+    <strong>GLocalMusic.Stop ()</strong>
+    </dt>
+    <dd>
+    Function that change the state of the music.  (Playing/Stopped=>DETROYED)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the music has been played/stopped, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.SetPause"></a>
+    <strong>GLocalMusic.SetPause (state)</strong>
+    </dt>
+    <dd>
+    Function that change the state of the music.  (Resume/Pause)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">state</span>
+         boolean (true if the music will be paused, false if it will be resumed)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the music has been paused/resumed, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.SetURL"></a>
+    <strong>GLocalMusic.SetURL (url)</strong>
+    </dt>
+    <dd>
+    Function that change the url of the music.  (Music will be destroyed and recreated)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">url</span>
+         string (url of the music)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the url has been changed, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.SetVolume"></a>
+    <strong>GLocalMusic.SetVolume (volume)</strong>
+    </dt>
+    <dd>
+    Function that change the volume of the music.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">volume</span>
+         number (volume of the music)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the volume has been changed, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.SetLoop"></a>
+    <strong>GLocalMusic.SetLoop (loop)</strong>
+    </dt>
+    <dd>
+    Function that change the loop state of the music.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">loop</span>
+         boolean (true if the music will loop, false if not)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the loop state has been changed, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.SetTime"></a>
+    <strong>GLocalMusic.SetTime (time)</strong>
+    </dt>
+    <dd>
+    Function that change the time of the music.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">time</span>
+         number (time of the music in SECONDS)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the time has been changed, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.SetCreator"></a>
+    <strong>GLocalMusic.SetCreator (creator)</strong>
+    </dt>
+    <dd>
+    Function that change the creator of the music.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">creator</span>
+         string (creator of the music)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the creator has been changed, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.GetCreator"></a>
+    <strong>GLocalMusic.GetCreator ()</strong>
+    </dt>
+    <dd>
+    Function that get the creator of the music.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string (creator of the music)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.SetTitle"></a>
+    <strong>GLocalMusic.SetTitle (title)</strong>
+    </dt>
+    <dd>
+    Function that change the title of the music.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">title</span>
+         string (title of the music)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the title has been changed, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.GetTitle"></a>
+    <strong>GLocalMusic.GetTitle ()</strong>
+    </dt>
+    <dd>
+    Function that get the title of the music.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string (title of the music)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.GetTime"></a>
+    <strong>GLocalMusic.GetTime ()</strong>
+    </dt>
+    <dd>
+    Function that return the current time of the music.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number (time of the music in SECONDS)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.GetDuration"></a>
+    <strong>GLocalMusic.GetDuration ()</strong>
+    </dt>
+    <dd>
+    Function that return the duration of the music.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number (duration of the music in SECONDS)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.GetVolume"></a>
+    <strong>GLocalMusic.GetVolume ()</strong>
+    </dt>
+    <dd>
+    Function that return the current volume of the music.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number (volume of the music) (0 if the music is not created)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.GetLoop"></a>
+    <strong>GLocalMusic.GetLoop ()</strong>
+    </dt>
+    <dd>
+    Function that return the current loop state of the music.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the music is looping, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GLocalMusic.IsPaused"></a>
+    <strong>GLocalMusic.IsPaused ()</strong>
+    </dt>
+    <dd>
+    Function that return if the music is paused or not.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the music is paused, false if paused)
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2023-03-23 20:15:58 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,858 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>GMusic Docs</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>GMusic Docs</h1>
+
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/GMusic_CL.html">GMusic_CL</a></li>
+  <li><strong>GMusic_SV</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>GMusic_SV</code></h1>
+<p>Class used to handle all the system behind the music (like timers, etc.) (SERVERSIDE)</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#GMusic.isListeningMusic">GMusic.isListeningMusic (player)</a></td>
+	<td class="summary">Method that return if a player is listening a music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:Delete">GMusic:Delete ()</a></td>
+	<td class="summary">Public Method to delete the music object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic.create">GMusic.create (url, creator, title, loop, time, canEveryonePause)</a></td>
+	<td class="summary">Public Function which create the music object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:GetID">GMusic:GetID ()</a></td>
+	<td class="summary">Public Method to get the object ID.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic.GetByID">GMusic.GetByID (id)</a></td>
+	<td class="summary">Public Method to get the object with the ID.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:GetURL">GMusic:GetURL ()</a></td>
+	<td class="summary">Public Method to get the object URL.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:SetURL">GMusic:SetURL (url)</a></td>
+	<td class="summary">Public Method to set the object URL (change the music).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:GetCreator">GMusic:GetCreator ()</a></td>
+	<td class="summary">Public Method to get the object creator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:GetTitle">GMusic:GetTitle ()</a></td>
+	<td class="summary">Public Method to get the object Title.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:SetTitle">GMusic:SetTitle (title)</a></td>
+	<td class="summary">Public Method to set the object Title.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:SetCreator">GMusic:SetCreator (creator)</a></td>
+	<td class="summary">Public Method to set the object creator.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:GetLoop">GMusic:GetLoop ()</a></td>
+	<td class="summary">Public Method to get the object loop.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:SetLoop">GMusic:SetLoop (loop)</a></td>
+	<td class="summary">Public Method to set the object loop.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:GetVolume">GMusic:GetVolume ()</a></td>
+	<td class="summary">Public Method to get the object volume.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:SetVolume">GMusic:SetVolume (volume)</a></td>
+	<td class="summary">Public Method to set the object volume.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:IsPlaying">GMusic:IsPlaying ()</a></td>
+	<td class="summary">Public Method that return if the music is playing.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:IsPaused">GMusic:IsPaused ()</a></td>
+	<td class="summary">Public Method that return if the music is paused.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:Pause">GMusic:Pause (player)</a></td>
+	<td class="summary">Public Method to set if this music is paused.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:GetDuration">GMusic:GetDuration ()</a></td>
+	<td class="summary">Public Method to get the length of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:UpdateTime">GMusic:UpdateTime ()</a></td>
+	<td class="summary">Public Method to set the time of the music without updating for all player.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:GetTime">GMusic:GetTime ()</a></td>
+	<td class="summary">Public Method to get the time of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:SetTime">GMusic:SetTime (time)</a></td>
+	<td class="summary">Public Method to set the time of the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:AddPlayer">GMusic:AddPlayer (ply)</a></td>
+	<td class="summary">Public Method to add a player to the whitelist.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:RemovePlayer">GMusic:RemovePlayer (ply)</a></td>
+	<td class="summary">Public Method to remove a player from the whitelist.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic.GetPlayerMusic">GMusic.GetPlayerMusic (ply)</a></td>
+	<td class="summary">Public function to get the music object heared by a player.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:GetNumberWhitelisted">GMusic:GetNumberWhitelisted ()</a></td>
+	<td class="summary">Public function to get the number of players listening the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:Stop">GMusic:Stop (ply)</a></td>
+	<td class="summary">Public function to stop the music.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic:GetWhitelisted">GMusic:GetWhitelisted (startPos, endPos)</a></td>
+	<td class="summary">Public method to get whitelisted players of a music object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GMusic.GetAll">GMusic.GetAll (startPos, endPos)</a></td>
+	<td class="summary">Public function to get all music objects.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "GMusic.isListeningMusic"></a>
+    <strong>GMusic.isListeningMusic (player)</strong>
+    </dt>
+    <dd>
+    Method that return if a player is listening a music.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">player</span>
+         Player (player to check)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the player is listening a music, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:Delete"></a>
+    <strong>GMusic:Delete ()</strong>
+    </dt>
+    <dd>
+    Public Method to delete the music object.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the music has been deleted, false if not existing)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic.create"></a>
+    <strong>GMusic.create (url, creator, title, loop, time, canEveryonePause)</strong>
+    </dt>
+    <dd>
+    Public Function which create the music object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">url</span>
+         string (url of the music)
+        </li>
+        <li><span class="parameter">creator</span>
+         Player (player who created the music)
+        </li>
+        <li><span class="parameter">title</span>
+         string (title of the music)
+        </li>
+        <li><span class="parameter">loop</span>
+         boolean (true if the music is looped, false if not)
+        </li>
+        <li><span class="parameter">time</span>
+         number (time of the music)
+        </li>
+        <li><span class="parameter">canEveryonePause</span>
+         boolean (true if everyone can pause the music, false if not)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table (music object)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:GetID"></a>
+    <strong>GMusic:GetID ()</strong>
+    </dt>
+    <dd>
+    Public Method to get the object ID.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic.GetByID"></a>
+    <strong>GMusic.GetByID (id)</strong>
+    </dt>
+    <dd>
+    Public Method to get the object with the ID.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">id</span>
+         number (id of the object)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        GMusic
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:GetURL"></a>
+    <strong>GMusic:GetURL ()</strong>
+    </dt>
+    <dd>
+    Public Method to get the object URL.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:SetURL"></a>
+    <strong>GMusic:SetURL (url)</strong>
+    </dt>
+    <dd>
+    Public Method to set the object URL (change the music).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">url</span>
+         string (url of the music)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the modification has been added, false if not existing/error)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:GetCreator"></a>
+    <strong>GMusic:GetCreator ()</strong>
+    </dt>
+    <dd>
+    Public Method to get the object creator.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Player (creator of the object)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:GetTitle"></a>
+    <strong>GMusic:GetTitle ()</strong>
+    </dt>
+    <dd>
+    Public Method to get the object Title.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        string (title of the object)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:SetTitle"></a>
+    <strong>GMusic:SetTitle (title)</strong>
+    </dt>
+    <dd>
+    Public Method to set the object Title.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">title</span>
+         string (title of the object)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the modification has been added, false if not existing/error)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:SetCreator"></a>
+    <strong>GMusic:SetCreator (creator)</strong>
+    </dt>
+    <dd>
+    Public Method to set the object creator.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">creator</span>
+         string (creator of the object)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the modification has been added, false if not existing/error)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:GetLoop"></a>
+    <strong>GMusic:GetLoop ()</strong>
+    </dt>
+    <dd>
+    Public Method to get the object loop.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the object is looped, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:SetLoop"></a>
+    <strong>GMusic:SetLoop (loop)</strong>
+    </dt>
+    <dd>
+    Public Method to set the object loop.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">loop</span>
+         boolean (true if the object is looped, false if not)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the modification has been added, false if not existing/error)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:GetVolume"></a>
+    <strong>GMusic:GetVolume ()</strong>
+    </dt>
+    <dd>
+    Public Method to get the object volume.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number (volume of the object)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:SetVolume"></a>
+    <strong>GMusic:SetVolume (volume)</strong>
+    </dt>
+    <dd>
+    Public Method to set the object volume.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">volume</span>
+         number (volume of the object)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the modification has been added, false if not existing/error)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:IsPlaying"></a>
+    <strong>GMusic:IsPlaying ()</strong>
+    </dt>
+    <dd>
+    Public Method that return if the music is playing.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the music is playing, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:IsPaused"></a>
+    <strong>GMusic:IsPaused ()</strong>
+    </dt>
+    <dd>
+    Public Method that return if the music is paused.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the music is paused, false if not)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:Pause"></a>
+    <strong>GMusic:Pause (player)</strong>
+    </dt>
+    <dd>
+    Public Method to set if this music is paused.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">player</span>
+         Player (player who want to pause the music)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the modification has been added, false if not existing/error)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:GetDuration"></a>
+    <strong>GMusic:GetDuration ()</strong>
+    </dt>
+    <dd>
+    Public Method to get the length of the music.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number (length of the music)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:UpdateTime"></a>
+    <strong>GMusic:UpdateTime ()</strong>
+    </dt>
+    <dd>
+    Public Method to set the time of the music without updating for all player.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:GetTime"></a>
+    <strong>GMusic:GetTime ()</strong>
+    </dt>
+    <dd>
+    Public Method to get the time of the music.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number (time of the music)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:SetTime"></a>
+    <strong>GMusic:SetTime (time)</strong>
+    </dt>
+    <dd>
+    Public Method to set the time of the music.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">time</span>
+         number (time of the music)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the modification has been added, false if not existing/error)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:AddPlayer"></a>
+    <strong>GMusic:AddPlayer (ply)</strong>
+    </dt>
+    <dd>
+    Public Method to add a player to the whitelist.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ply</span>
+         Player (player to add)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the modification has been added, false if not existing/error)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:RemovePlayer"></a>
+    <strong>GMusic:RemovePlayer (ply)</strong>
+    </dt>
+    <dd>
+    Public Method to remove a player from the whitelist.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ply</span>
+         Player (player to remove)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the modification has been added, false if not existing/error)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic.GetPlayerMusic"></a>
+    <strong>GMusic.GetPlayerMusic (ply)</strong>
+    </dt>
+    <dd>
+    Public function to get the music object heared by a player.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ply</span>
+         Player (player to get the music)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        GMusic (music object)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:GetNumberWhitelisted"></a>
+    <strong>GMusic:GetNumberWhitelisted ()</strong>
+    </dt>
+    <dd>
+    Public function to get the number of players listening the music.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number (number of players listening the music)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:Stop"></a>
+    <strong>GMusic:Stop (ply)</strong>
+    </dt>
+    <dd>
+    Public function to stop the music.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">ply</span>
+         Player (player who stop the music)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        boolean (true if the modification has been added, false if not existing/error)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic:GetWhitelisted"></a>
+    <strong>GMusic:GetWhitelisted (startPos, endPos)</strong>
+    </dt>
+    <dd>
+    Public method to get whitelisted players of a music object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">startPos</span>
+         number (start position of the table) MUST BE A POSITIVE NUMBER &amp; LESS THAN THE END POSITION
+        </li>
+        <li><span class="parameter">endPos</span>
+         number (end position of the table) MUST BE A POSITIVE NUMBER &amp; MORE THAN THE START POSITION
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table (table of whitelisted players)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GMusic.GetAll"></a>
+    <strong>GMusic.GetAll (startPos, endPos)</strong>
+    </dt>
+    <dd>
+    Public function to get all music objects.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">startPos</span>
+         number (start position of the table) MUST BE A POSITIVE NUMBER &amp; LESS THAN THE END POSITION
+        </li>
+        <li><span class="parameter">endPos</span>
+         number (end position of the table) MUST BE A POSITIVE NUMBER &amp; MORE THAN THE START POSITION
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        table (table of music objects)
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2023-03-23 20:15:58 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
