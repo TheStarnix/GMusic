@@ -401,13 +401,20 @@ function GMusic:GetTime()
 end
 
 --- Public Method to set the time of the music.
+-- @param player Player (player who want to change the time)
 -- @param time number (time of the music)
 -- @return boolean (true if the modification has been added, false if not existing/error)
-function GMusic:SetTime(time)
+function GMusic:SetTime(player, time)
     if not self then return end
+    if not IsValid(player) then return false end
     if not isnumber(time) then return false end
-    self.time = time
-    return AddEdit(tableModifications.time, self)
+    if self.canEveryonePause or self:GetCreator() == player or GMusic.isStaff(player) then
+        self.time = time
+        return AddEdit(tableModifications.time, self)
+    else
+        return false
+    end
+    
 end
 
 --- Public Method to add a player to the whitelist.

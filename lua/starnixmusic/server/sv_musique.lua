@@ -98,7 +98,7 @@ net.Receive("Music_ChangeTime", function(len, ply)
     local musicObject = GMusic.GetPlayerMusic(ply)
     if musicObject then
         local time = net.ReadFloat()
-        musicObject:SetTime(time)
+        musicObject:SetTime(ply, time)
     else
         ply:PrintMessage(HUD_PRINTTALK, "You don't have any music playing.")
     end
