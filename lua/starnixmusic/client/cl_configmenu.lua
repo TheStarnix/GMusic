@@ -24,7 +24,7 @@ function StarnixMusic.ConfigMenu(panelContent)
     ---------------------------------------------------------------------------]]
     local pConfigRequestMusicButton = vgui.Create("DImageButton", panelContent)
     pConfigRequestMusicButton:SetPos(StarnixMusic.RespX(70), StarnixMusic.RespY(50))
-    pConfigRequestMusicButton:SetSize(StarnixMusic.RespX(32), StarnixMusic.RespY(32))
+    pConfigRequestMusicButton:SetSize(32, 32)
     pConfigRequestMusicButton:SetMaterial(materialButtonNo)
     pConfigRequestMusicButton.DoClick = function()
         isAcceptingMusicBool = !isAcceptingMusicBool

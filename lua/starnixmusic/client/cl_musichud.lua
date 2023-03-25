@@ -26,6 +26,7 @@ local Materialbutton_volume = Material(StarnixMusic.materialspath .. "icon_sound
 local frameButtonImage = StarnixMusic.materialspath .. "frame_combobox.png"
 local frameBase = Material(StarnixMusic.materialspath .. "frame_base.png")
 local iconClose = StarnixMusic.materialspath .. "icon_close.png"
+local Materialmenu_bar = Material(StarnixMusic.materialspath .. "menu_bar.png")
 
 --[[-------------------------------------------------------------------------]
 We create the circle used in drawTimePanel. We create once to avoid performance loss.
@@ -135,7 +136,7 @@ local function drawTimePanel()
     if not GLocalMusic.IsCreated() then return end
     local timePanel = vgui.Create( "DFrame" )
     timePanel:SetPos( ScrW()/2, ScrH()/2) -- Set the position of the panel
-    timePanel:SetSize( 500, 200 ) -- Set the size of the panel
+    timePanel:SetSize(StarnixMusic.RespX(500), StarnixMusic.RespY(200)) -- Set the size of the panel
     timePanel:SetVisible(true)
     timePanel:SetDraggable(false)
     timePanel:ShowCloseButton(false)
@@ -250,12 +251,15 @@ function StarnixMusic.drawHUD()
     end
     if not StarnixMusic.IsPlaying then return end 
     if not GLocalMusic.IsCreated() then return end
+    local isStaff = StarnixMusic.adminGroups[LocalPlayer():GetUserGroup()] or false
+    local creator = GLocalMusic.GetCreator() == LocalPlayer()
+    local reduced = false
 
     local pauseState = GLocalMusic.IsPaused()
 
     frameHudMusic = vgui.Create( "DFrame" )
-    frameHudMusic:SetPos( StarnixMusic.RespX(1500), StarnixMusic.RespY(100) ) -- Set the position of the panel
-    frameHudMusic:SetSize( 300, 200 ) -- Set the size of the panel
+    frameHudMusic:SetPos( ScrW()-StarnixMusic.RespX(340), 20) -- Set the position of the panel
+    frameHudMusic:SetSize( StarnixMusic.RespX(320), StarnixMusic.RespY(200)) -- Set the size of the panel
     frameHudMusic:SetVisible(true)
     frameHudMusic:SetDraggable(false)
     frameHudMusic:ShowCloseButton(false)
@@ -289,21 +293,9 @@ function StarnixMusic.drawHUD()
         end
     end
 
-    -- Draw a button to handle the users systems
-    local userButton = vgui.Create("DImageButton", frameHudMusic)
-    userButton:SetPos(StarnixMusic.RespX(158), StarnixMusic.RespY(120))
-    userButton:SetSize(32, 32)
-    userButton:SetVisible(true)
-    userButton:SetMaterial(Materialbutton_user)
-    userButton.DoClick = function()
-        if GLocalMusic.IsCreated() then
-            StarnixMusic.drawGroups()
-        end
-    end
-
     -- Draw a button to readjust the volume of the music
     local volumeButton = vgui.Create("DImageButton", frameHudMusic)
-    volumeButton:SetPos(StarnixMusic.RespX(218), StarnixMusic.RespY(120))
+    volumeButton:SetPos(StarnixMusic.RespX(158), StarnixMusic.RespY(120))
     volumeButton:SetSize(32, 32)
     volumeButton:SetVisible(true)
     volumeButton:SetMaterial(Materialbutton_volume)
@@ -312,6 +304,40 @@ function StarnixMusic.drawHUD()
             drawVolumePanel()
         end
     end
+
+    -- Draw a button to handle the users systems
+    local userButton = vgui.Create("DImageButton", frameHudMusic)
+    userButton:SetPos(StarnixMusic.RespX(218), StarnixMusic.RespY(120))
+    userButton:SetSize(32, 32)
+    userButton:SetVisible(true)
+    userButton:SetMaterial(Materialbutton_user)
+    userButton.DoClick = function()
+        if GLocalMusic.IsCreated() then
+            StarnixMusic.drawGroups()
+        end
+    end
+    if creator or isStaff then
+        userButton:SetVisible(true)
+    else
+        userButton:SetVisible(false)
+    end
+
+    local reduceFrame = vgui.Create("DImageButton", frameHudMusic)
+    reduceFrame:SetPos(StarnixMusic.RespX(278), StarnixMusic.RespY(150))
+    reduceFrame:SetSize(32, 32)
+    reduceFrame:SetVisible(true)
+    reduceFrame:SetMaterial(Materialmenu_bar)
+    reduceFrame.DoClick = function()
+        reduced = not reduced
+        if reduced then
+            reduceFrame:SetPos(StarnixMusic.RespX(278), StarnixMusic.RespY(5))
+            frameHudMusic:SetSize( StarnixMusic.RespX(320), StarnixMusic.RespY(100)) -- Set the size of the panel
+        else
+            reduceFrame:SetPos(StarnixMusic.RespX(278), StarnixMusic.RespY(150))
+            frameHudMusic:SetSize( StarnixMusic.RespX(320), StarnixMusic.RespY(200)) -- Set the size of the panel
+        end
+    end
+
 
     frameHudMusic.Paint = function(self, w, h)
         if not GLocalMusic.IsCreated() then 

@@ -105,13 +105,14 @@ function StarnixMusic.RequestMenu(panelContent)
     textEntryTitle:SetDrawBackground(false)
     textEntryTitle:SetFontInternal("StarMusic_Text")
     textEntryTitle:SetTextColor(color_white)
+    
 
     --[[-------------------------------------------------------------------------
     Checkbox to loop the music
     -------------------------------------------------------------------------]]--
     local imageButtonLoop = vgui.Create("DImageButton", panelContent) -- Create the checkbox
     imageButtonLoop:SetPos(0,StarnixMusic.RespY(190))
-    imageButtonLoop:SetSize(StarnixMusic.RespX(270), StarnixMusic.RespY(30))
+    imageButtonLoop:SetSize(StarnixMusic.RespX(270), 30)
     imageButtonLoop:SetImage(frameLoop)
     imageButtonLoop.DoClick = function()
         if buttonLoopState then
@@ -148,8 +149,8 @@ function StarnixMusic.RequestMenu(panelContent)
     ---------------------------------------------------------------------------]]
     if isStaff then
         local buttonEveryonePause = vgui.Create("DImageButton", panelContent)
-        buttonEveryonePause:SetPos(StarnixMusic.RespX(70), StarnixMusic.RespY(190))
-        buttonEveryonePause:SetSize(StarnixMusic.RespX(32), StarnixMusic.RespY(32))
+        buttonEveryonePause:SetPos(panelContent:GetWide()/2-StarnixMusic.RespX(330), StarnixMusic.RespY(190))
+        buttonEveryonePause:SetSize(32, 32)
         buttonEveryonePause.DoClick = function()
             canEveryonePauseMusic = !canEveryonePauseMusic
             changeButton(buttonEveryonePause, canEveryonePauseMusic)
@@ -165,7 +166,7 @@ function StarnixMusic.RequestMenu(panelContent)
         buttonEveryonePauseText:SetFont("StarMusic_Text")
         buttonEveryonePauseText:SetTextColor(color_white)
         buttonEveryonePauseText:SizeToContents()
-        imageButtonLoop:SetPos(StarnixMusic.RespX(570),StarnixMusic.RespY(190))
+        imageButtonLoop:SetPos(panelContent:GetWide()/2+StarnixMusic.RespX(70),StarnixMusic.RespY(190))
     end
 
     --[[-------------------------------------------------------------------------
@@ -265,6 +266,9 @@ function StarnixMusic.RequestMenu(panelContent)
     labelVolume:CenterHorizontal()
 
     containerSlider:CenterHorizontal()
+    local width, _ = labelVolume:GetTextSize()
+    buttonValidate:SetSize(width+StarnixMusic.RespX(10), StarnixMusic.RespY(50))
+    containerSlider:SetSize(width+StarnixMusic.RespX(360), StarnixMusic.RespY(50))
 
     --[[-------------------------------------------------------------------------
     Button to stop the music

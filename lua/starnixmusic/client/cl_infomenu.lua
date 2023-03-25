@@ -32,10 +32,10 @@ function StarnixMusic.infoMenu(panelContent)
     textCreatorSubTitle2:SetColor(color_white)
 
     local textCreator2 = vgui.Create("DLabel", panelContent)
-    textCreator2:SetText("Thanks to Flaticon, juicy_fish, Ian June, Freepik, srip, SBTS2018, bahuraksa-font, dancing-script-font, alegreya-sans-font, DinosoftLabs, IYAHICON.")
+    textCreator2:SetText("Thanks to Flaticon, juicy_fish, Ian June, Freepik, srip, SBTS2018, bahuraksa-font, dancing-script-font, alegreya-sans-font, DinosoftLabs, IYAHICON, Alfan Subekti.")
     textCreator2:SetFont("StarMusic_Text")
-    textCreator2:SetSize(panelContent:GetWide()-20, 100)
-    textCreator2:SetPos(StarnixMusic.RespX(20), StarnixMusic.RespY(200))
+    textCreator2:SetSize(panelContent:GetWide()-20, 120)
+    textCreator2:SetPos(StarnixMusic.RespX(20), StarnixMusic.RespY(180))
     textCreator2:SetWrap(true)
     textCreator2:SetColor(color_white)
 

@@ -39,7 +39,7 @@ local function confirmationPanel(target, refreshList)
     ---------------------------------------------------------------------------]]
     local confirmationPanelFrame = vgui.Create( "DFrame" )
     confirmationPanelFrame:SetPos( ScrW()/2, ScrH()/2) -- Set the position of the panel
-    confirmationPanelFrame:SetSize( 400, 200 ) -- Set the size of the panel
+    confirmationPanelFrame:SetSize(StarnixMusic.RespX(400), StarnixMusic.RespY(200)) -- Set the size of the panel
     confirmationPanelFrame:SetVisible(true)
     confirmationPanelFrame:SetDraggable(false)
     confirmationPanelFrame:ShowCloseButton(false)
@@ -270,6 +270,8 @@ function StarnixMusic.drawGroups()
     local boolForceAdded = false -- Will the player be forced to the whitelist?
     local index_startPos = 0
     local index_endPos = 10
+    local isStaff = StarnixMusic.adminGroups[LocalPlayer():GetUserGroup()] or false
+    local creator = GLocalMusic.GetCreator() == LocalPlayer()
 
 
     --[[-------------------------------------------------------------------------]
@@ -277,7 +279,7 @@ function StarnixMusic.drawGroups()
     ---------------------------------------------------------------------------]]
     local usergroupsPanel = vgui.Create( "DFrame" )
     usergroupsPanel:SetPos( ScrW()/2, ScrH()/2) -- Set the position of the panel
-    usergroupsPanel:SetSize( 800, 800 ) -- Set the size of the panel
+    usergroupsPanel:SetSize(StarnixMusic.RespX(800), StarnixMusic.RespY(800)) -- Set the size of the panel
     usergroupsPanel:SetVisible(true)
     usergroupsPanel:SetDraggable(false)
     usergroupsPanel:ShowCloseButton(false)
@@ -406,7 +408,7 @@ function StarnixMusic.drawGroups()
     ---------------------------------------------------------------------------]]
     local pListPanelButtonAddForce = vgui.Create("DImageButton", usergroupsPanel)
     pListPanelButtonAddForce:SetPos(StarnixMusic.RespX(70), StarnixMusic.RespY(200))
-    pListPanelButtonAddForce:SetSize(StarnixMusic.RespX(32), StarnixMusic.RespY(32))
+    pListPanelButtonAddForce:SetSize(32, 32)
     pListPanelButtonAddForce:SetMaterial(materialButtonNo)
     pListPanelButtonAddForce.DoClick = function()
         boolForceAdded = !boolForceAdded
@@ -426,6 +428,11 @@ function StarnixMusic.drawGroups()
     pListPanelButtonAddForceText:SetFont("StarMusic_Text")
     pListPanelButtonAddForceText:SetTextColor(color_white)
     pListPanelButtonAddForceText:SizeToContents()
+
+    if not isStaff then
+        pListPanelButtonAddForce:SetVisible(false)
+        pListPanelButtonAddForceText:SetVisible(false)
+    end
 
     --[[-------------------------------------------------------------------------]
     PREVIOUS BUTTON

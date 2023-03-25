@@ -134,7 +134,7 @@ end
 --- Function that return if the music is valid or not by using the GLocalMusic.CurrentAudio.audioChannel variable.
 -- @return boolean (true if the music is valid, false if not)
 function GLocalMusic.IsValidSong()
-    if GLocalMusic.CurrentAudio and GLocalMusic.CurrentAudio.audioChannel and GLocalMusic.CurrentAudio.audioChannel:IsValid() then -- Check if the table is empty
+    if GLocalMusic.CurrentAudio and GLocalMusic.CurrentAudio.audioChannel and IsValid(GLocalMusic.CurrentAudio.audioChannel) and GLocalMusic.CurrentAudio.audioChannel:IsValid() then -- Check if the table is empty
         return true
     else
         return false

@@ -437,11 +437,11 @@ function StarnixMusic.drawManage(panelContent)
     pListPanelTitleEmpty:SetTextColor(color_white)
     pListPanelTitleEmpty:SizeToContents()
     pListPanelTitleEmpty:CenterHorizontal()
-    pListPanelTitleEmpty:SetVisible(false)
+    pListPanelTitleEmpty:SetVisible(true)
 
     if index_endPos >= maxSongsWhitelisted then 
         pListPanelButtonNext:SetVisible(false)
-        pListPanelTitleEmpty:SetVisible(true)
+        pListPanelTitleEmpty:SetVisible(false)
     end
 
     --[[-------------------------------------------------------------------------]
