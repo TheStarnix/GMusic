@@ -56,7 +56,7 @@ StarnixMusic.OpenMenuFunction = function()
 	frameText = vgui.Create("DLabel", text_container)
 	frameText:SetPos(0,0)
 	frameText:SetFont("StarMusic_Title")
-	frameText:SetText("StarnixMusic")
+	frameText:SetText("GMusic")
 	frameText:SetTextColor(color_white)
 	frameText:SizeToContents()
 	frameText:CenterHorizontal(0.5)
@@ -69,7 +69,7 @@ StarnixMusic.OpenMenuFunction = function()
 	panelOnglets.Paint = nil
 
 	local panelContent = vgui.Create( "DPanel", frame)
-	panelContent:SetPos( StarnixMusic.RespX(50), StarnixMusic.RespY(54) )
+	panelContent:SetPos( StarnixMusic.RespX(60), StarnixMusic.RespY(54) )
 	panelContent:SetSize( 910, frame:GetTall()-panelContent:GetY() )
 	panelContent.Paint = nil
 

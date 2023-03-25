@@ -1,3 +1,5 @@
+--- Class used to handle all the system behind the music (like timers, etc.) (CLIENTSIDE)
+-- @module GMusic_CL
 /*
         GMusic - A music library for Garry's Mod
     
@@ -14,9 +16,6 @@
         along with GMusic. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
---- Class used to handle all the system behind the music (like timers, etc.) (CLIENTSIDE)
--- @module GLocalMusic
 _G.GLocalMusic = {}
 GLocalMusic.__index = GLocalMusic-- If a key cannot be found in an object, it will look in it's metatable's __index metamethod.
 GLocalMusic.CurrentAudio = {} -- @field CurrentAudio (table) (table containing the current music object) (CLIENTSIDE)
@@ -135,7 +134,7 @@ end
 --- Function that return if the music is valid or not by using the GLocalMusic.CurrentAudio.audioChannel variable.
 -- @return boolean (true if the music is valid, false if not)
 function GLocalMusic.IsValidSong()
-    if GLocalMusic.CurrentAudio and GLocalMusic.CurrentAudio.audioChannel and GLocalMusic.CurrentAudio.audioChannel:IsValid() then -- Check if the table is empty
+    if GLocalMusic.CurrentAudio and GLocalMusic.CurrentAudio.audioChannel and IsValid(GLocalMusic.CurrentAudio.audioChannel) and GLocalMusic.CurrentAudio.audioChannel:IsValid() then -- Check if the table is empty
         return true
     else
         return false
@@ -290,7 +289,7 @@ function GLocalMusic.IsPaused()
 end
 
 --- Private Function to add a modification to the music object.
--- @param modificationBits number (cf. tableModifications)
+-- @param modificationsBits number (cf. tableModifications)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 local function AddEdit(modificationsBits)
 

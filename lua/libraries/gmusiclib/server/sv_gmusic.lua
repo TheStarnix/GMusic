@@ -1,3 +1,5 @@
+--- Class used to handle all the system behind the music (like timers, etc.) (SERVERSIDE)
+-- @module GMusic_SV
 /*
         GMusic - A music library for Garry's Mod
     
@@ -14,8 +16,6 @@
         along with GMusic. If not, see <http://www.gnu.org/licenses/>.
 */
 
---- Class used to handle all the system behind the music (like timers, etc.) (SERVERSIDE)
--- @module GMusic
 _G.GMusic = _G.GMusic or {}
 GMusic.__index = GMusic-- If a key cannot be found in an object, it will look in it's metatable's __index metamethod.
 GMusic.CurrentAudios = GMusic.CurrentAudios or {} -- @field CurrentAudios Table used to store all music objects. (SERVERSIDE)
@@ -90,6 +90,8 @@ end
 
 --- Private Function to add a modification to the music object.
 -- @param modification string (template in tableModifications)
+-- @param self table (music object)
+-- @param receiver Player (player to send the modification)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 local function AddEdit(modification, self, receiver)
     if not modification or not self then return end -- Object not existing or modification not existing
@@ -399,18 +401,24 @@ function GMusic:GetTime()
 end
 
 --- Public Method to set the time of the music.
+-- @param player Player (player who want to change the time)
 -- @param time number (time of the music)
 -- @return boolean (true if the modification has been added, false if not existing/error)
-function GMusic:SetTime(time)
+function GMusic:SetTime(player, time)
     if not self then return end
+    if not IsValid(player) then return false end
     if not isnumber(time) then return false end
-    self.time = time
-    return AddEdit(tableModifications.time, self)
+    if self.canEveryonePause or self:GetCreator() == player or GMusic.isStaff(player) then
+        self.time = time
+        return AddEdit(tableModifications.time, self)
+    else
+        return false
+    end
+    
 end
 
 --- Public Method to add a player to the whitelist.
 -- @param ply Player (player to add)
--- @param force boolean (true if you want to force the player to listen music, false if not. If forced: we stop his listening music and we start the new one)
 -- @return boolean (true if the modification has been added, false if not existing/error)
 function GMusic:AddPlayer(ply)
     if not self then return end
@@ -556,7 +564,7 @@ function GMusic.GetAll(startPos, endPos)
     return tableGMusic
 end
 
---- Private function that unregisterID of disconnected players.
+-- Private function that unregisterID of disconnected players.
 hook.Add("PlayerDisconnected", "GMusicLib_PlayerDisconnected", function(ply)
     if GMusic.isListeningMusic(ply) then
         -- If the player is the creator a music object, we delete it, else we remove him from the whitelist.
