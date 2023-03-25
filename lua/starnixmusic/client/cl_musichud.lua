@@ -53,7 +53,7 @@ local function drawVolumePanel()
     if not GLocalMusic.IsCreated() then return end
     local soundPanel = vgui.Create( "DFrame" )
     soundPanel:SetPos( ScrW()/2, ScrH()/2) -- Set the position of the panel
-    soundPanel:SetSize( 500, 200 ) -- Set the size of the panel
+    soundPanel:SetSize(StarnixMusic.RespX(500), StarnixMusic.RespY(200)) -- Set the size of the panel
     soundPanel:SetVisible(true)
     soundPanel:SetDraggable(false)
     soundPanel:ShowCloseButton(false)
