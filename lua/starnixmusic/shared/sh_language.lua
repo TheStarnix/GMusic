@@ -25,6 +25,7 @@ if CLIENT then
         language.Add("music.menu.loopLabelYes", "Loop enabled")
         language.Add("music.menu.loopLabelNo", "Loop disabled")
         language.Add("music.menu.request", "Create !")
+        language.Add("music.menu.requestAll", "Create and add all !")
         language.Add("music.menu.change", "Change !")
         language.Add("music.menu.stop", "Stop the music")
         language.Add("music.menu.pause", "Pause the music")

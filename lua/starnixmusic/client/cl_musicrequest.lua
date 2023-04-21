@@ -36,14 +36,10 @@ local function changeButton(button, condition)
     end
 end
 
-function hideEditMusicButtons(buttonStop, buttonPause, sliderVolume, buttonValidate, labelButtonRequest)
-    buttonStop:SetVisible(false)
-    buttonPause:SetVisible(false)
-    sliderVolume:SetVisible(false)
-    buttonValidate:SetVisible(false)
-    labelButtonRequest:SetText(language.GetPhrase("music.menu.request"))
-    labelButtonRequest:SizeToContents()
-    labelButtonRequest:Center()
+function hideEditMusicButtons(...)
+    for _, v in ipairs({...}) do
+        v:SetVisible(false)
+    end
 end
 
 --[[-------------------------------------------------------------------------
@@ -174,7 +170,7 @@ function StarnixMusic.RequestMenu(panelContent)
     -------------------------------------------------------------------------]]--
     
     local buttonRequest = vgui.Create("DImageButton", panelContent)
-    buttonRequest:SetPos(0, StarnixMusic.RespY(240))
+    buttonRequest:SetPos(StarnixMusic.RespX(200), StarnixMusic.RespY(240))
     buttonRequest:SetSize(StarnixMusic.RespX(200), StarnixMusic.RespY(50))
     buttonRequest:SetImage(frameButtonImage)
     buttonRequest.DoClick = function()
@@ -186,10 +182,10 @@ function StarnixMusic.RequestMenu(panelContent)
                 net.WriteString(textEntryTitle:GetValue()) -- Send the title
                 net.WriteBool(buttonLoopState) -- Send the loop checkbox state
                 net.WriteBool(canEveryonePauseMusic)
+                net.WriteBool(false) -- Add all players?
             net.SendToServer()
         end
     end
-    buttonRequest:CenterHorizontal()
 
     local labelButtonRequest = vgui.Create("DLabel", buttonRequest)
     labelButtonRequest:SetPos(0,0)
@@ -198,6 +194,37 @@ function StarnixMusic.RequestMenu(panelContent)
     labelButtonRequest:SetTextColor(color_white)
     labelButtonRequest:SizeToContents()
     labelButtonRequest:Center()
+
+    --[[-------------------------------------------------------------------------]
+    Button to create and add all players
+    ---------------------------------------------------------------------------]]
+
+    local buttonRequestAll = vgui.Create("DImageButton", panelContent)
+    buttonRequestAll:SetPos(StarnixMusic.RespX(500), StarnixMusic.RespY(240))
+    buttonRequestAll:SetSize(StarnixMusic.RespX(200), StarnixMusic.RespY(50))
+    buttonRequestAll:SetImage(frameButtonImage)
+    buttonRequestAll.DoClick = function()
+        if textEntryUrl:GetValue() == "" then -- TODO: Create a better menu.
+            Derma_Message(language.GetPhrase("music.menu.urlError"), language.GetPhrase("music.menu.Error"), language.GetPhrase("music.menu.Understood"))
+        else
+            net.Start("Music_SendSong") -- Send the request to the server
+                net.WriteString(textEntryUrl:GetValue()) -- Send the URL
+                net.WriteString(textEntryTitle:GetValue()) -- Send the title
+                net.WriteBool(buttonLoopState) -- Send the loop checkbox state
+                net.WriteBool(canEveryonePauseMusic)
+                net.WriteBool(true) -- Add all players?
+            net.SendToServer()
+        end
+    end
+
+    local labelButtonRequestAll = vgui.Create("DLabel", buttonRequestAll)
+    labelButtonRequestAll:SetPos(0,0)
+    labelButtonRequestAll:SetText(language.GetPhrase("music.menu.requestAll"))
+    labelButtonRequestAll:SetFont("StarMusic_SubTitle")
+    labelButtonRequestAll:SetTextColor(color_white)
+    labelButtonRequestAll:SizeToContents()
+    labelButtonRequestAll:Center()
+    
 
     --[[-------------------------------------------------------------------------
     Button to pause the music
@@ -278,7 +305,12 @@ function StarnixMusic.RequestMenu(panelContent)
     buttonStop:SetSize(StarnixMusic.RespX(200), StarnixMusic.RespY(50))
     buttonStop:SetImage(frameButtonImage)
     buttonStop.DoClick = function()
-        hideEditMusicButtons(buttonStop, buttonPause, sliderVolume, buttonValidate, labelButtonRequest)
+        hideEditMusicButtons(buttonStop, buttonPause, sliderVolume, buttonValidate)
+        labelButtonRequest:SetText(language.GetPhrase("music.menu.request"))
+        labelButtonRequest:SizeToContents()
+        labelButtonRequest:Center()
+        buttonRequest:SetPos(StarnixMusic.RespX(200), StarnixMusic.RespY(240))
+        buttonRequestAll:SetVisible(true)
         net.Start("Music_StopSong")
         net.SendToServer()
     end
@@ -295,11 +327,16 @@ function StarnixMusic.RequestMenu(panelContent)
     --[[-------------------------------------------------------------------------
     Hide stop button, pause button and change button if the player is not listening music.
     -------------------------------------------------------------------------]]--
-    if not GLocalMusic.IsCreated() then
-        hideEditMusicButtons(buttonStop, buttonPause, sliderVolume, buttonValidate, labelButtonRequest)
-    elseif GLocalMusic.IsCreated() and labelButtonRequest:GetText() == language.GetPhrase("music.menu.request") then
+    if not GLocalMusic.IsValidSong() then
+        hideEditMusicButtons(buttonStop, buttonPause, sliderVolume, buttonValidate)
+        labelButtonRequest:SetText(language.GetPhrase("music.menu.request"))
+        labelButtonRequest:SizeToContents()
+        labelButtonRequest:Center()
+    elseif GLocalMusic.IsValidSong() and labelButtonRequest:GetText() == language.GetPhrase("music.menu.request") then
+        hideEditMusicButtons(buttonRequestAll)
         labelButtonRequest:SetText(language.GetPhrase("music.menu.change"))
         labelButtonRequest:SizeToContents()
         labelButtonRequest:Center()
+        buttonRequest:CenterHorizontal()
     end
 end

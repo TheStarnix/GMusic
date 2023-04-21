@@ -83,6 +83,7 @@ local function CreateMusic(informations)
         else
             audioChannel:Play()
         end
+        GLocalMusic.CurrentAudio.audioChannel = audioChannel
     end)
     if informations.time != 0 and not informations.isBlockstreamed then
         timer.Simple(1, function()
@@ -134,7 +135,7 @@ end
 --- Function that return if the music is valid or not by using the GLocalMusic.CurrentAudio.audioChannel variable.
 -- @return boolean (true if the music is valid, false if not)
 function GLocalMusic.IsValidSong()
-    if GLocalMusic.CurrentAudio and GLocalMusic.CurrentAudio.audioChannel and IsValid(GLocalMusic.CurrentAudio.audioChannel) and GLocalMusic.CurrentAudio.audioChannel:IsValid() then -- Check if the table is empty
+    if GLocalMusic.CurrentAudio ~= nil and next(GLocalMusic.CurrentAudio) ~= nil and IsValid(GLocalMusic.CurrentAudio.audioChannel) then -- Check if the table is empty
         return true
     else
         return false
@@ -176,10 +177,10 @@ end
 -- @return boolean (true if the url has been changed, false if not)
 function GLocalMusic.SetURL(url)
     if not GLocalMusic.IsValidSong() or not url then return false end -- Object not existing
-    GLocalMusic.CurrentAudio.url = url
-    GLocalMusic.CurrentAudio.audioChannel:Stop() -- Stop the music
-    GLocalMusic.CurrentAudio.audioChannel = nil -- Remove the audioChannel
-    GLocalMusic.CurrentAudio.audioChannel = CreateMusic(GLocalMusic.CurrentAudio) -- Create a new audioChannel
+    local tempInformations = GLocalMusic.CurrentAudio
+    GLocalMusic.Stop()
+    tempInformations.url = url
+    GLocalMusic.CurrentAudio = CreateMusic(tempInformations) -- Create a new audioChannel
     return true
 end
 

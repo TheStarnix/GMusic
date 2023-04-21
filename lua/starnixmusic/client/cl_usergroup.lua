@@ -252,7 +252,7 @@ local function refreshList(usergroupsPanel, panelList, combobox)
     end
 
     -- We add all the players who are not in the whitelist to the combobox
-    for k,v in pairs(player.GetAll()) do
+    for k,v in ipairs(player.GetAll()) do
         -- We add the player to the combobox only if he is not the local player and if he is not already whitelisted
         if v != LocalPlayer() and not tableWhitelistedPly[v] then
             combobox:AddChoice(v:Nick(), v)

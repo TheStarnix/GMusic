@@ -32,6 +32,25 @@ local tableModifications = {
     volume      = b"0000001000",
 }
 
+function addAllPlayers(ply)
+    local musicObject = GMusic.GetPlayerMusic(ply)
+    if not musicObject then return end
+    local whitelistedOnMusic = musicObject:GetWhitelisted()
+    if not whitelistedOnMusic then return end
+    if not StarnixMusic.adminGroups[ply:GetUserGroup()] then return end
+    local filterWhitelist = RecipientFilter()
+    for k,v in ipairs(player.GetAll()) do
+        if v ~= entityOwner and not whitelistedOnMusic[v] then
+            filterWhitelist:AddPlayer(v)
+            musicObject:AddPlayer(v)
+        end
+    end
+    net.Start("Music_SendSong")
+        net.WriteBool(true)
+        net.WriteTable(musicObject)
+    net.Send(filterWhitelist)
+end
+
 --[[-------------------------------------------------------------------------
 Function called when a player want to create a music with the MENU.
 ---------------------------------------------------------------------------]]
@@ -40,14 +59,26 @@ net.Receive("Music_SendSong", function(len, ply)
     local name = net.ReadString() -- We store the name of the music.
     local looping = net.ReadBool() -- We store the choice of the player. Here, if the player want to loop the music or not.
     local canEveryonePause = net.ReadBool() -- We store the choice of the player. Here, if the player want to allow everyone to pause the music or not.
+    local isEveryoneAdded = net.ReadBool() -- We store the choice of the player. Here, if the player want to add all players.
     local musicObject = GMusic.GetPlayerMusic(ply)
+    local DataTable = nil
     if musicObject then -- If the music object already exist, we destroy it in order to recreate it.
-        musicObject:Delete()
+        if musicObject:GetCreator() == ply then
+            musicObject:SetURL(url)
+            musicObject:SetTitle(name)
+            musicObject:SetLoop(looping)
+            DataTable = musicObject
+        else
+            musicObject:Stop(ply)
+            DataTable = GMusic.create(url, ply, name, looping, 0, canEveryonePause)
+        end
+
+    else
+        DataTable = GMusic.create(url, ply, name, looping, 0, canEveryonePause)
     end
     if canEveryonePause and not StarnixMusic.adminGroups[ply:GetUserGroup()] then
         canEveryonePause = false
     end
-    local DataTable = GMusic.create(url, ply, name, looping, 0, canEveryonePause)
     net.Start("Music_SendSong") -- We send a net message to the client in order to tell that the music is created.
     if DataTable then 
         net.WriteBool(true) -- Is the music object valid ?
@@ -57,6 +88,9 @@ net.Receive("Music_SendSong", function(len, ply)
         net.WriteTable({})
     end
     net.Send(ply) 
+    if isEveryoneAdded then
+        addAllPlayers(ply)
+    end
 end)
 
 net.Receive("Music_StopSong", function(len, ply)
@@ -271,21 +305,7 @@ net.Receive("Music_WLAcceptation", function(len,ply)
 end)
 
 net.Receive("Music_MenuWLAddAllPlayer", function(len, ply)
-    local musicObject = GMusic.GetPlayerMusic(ply)
-    local whitelistedOnMusic = musicObject:GetWhitelisted()
-    if not musicObject or not whitelistedOnMusic then return end
-    if not StarnixMusic.adminGroups[ply:GetUserGroup()] then return end
-    local filterWhitelist = RecipientFilter()
-    for k,v in pairs(player.GetAll()) do
-        if v ~= entityOwner and not whitelistedOnMusic[v] then
-            filterWhitelist:AddPlayer(v)
-            musicObject:AddPlayer(v)
-        end
-    end
-    net.Start("Music_SendSong")
-        net.WriteBool(true)
-        net.WriteTable(musicObject)
-    net.Send(filterWhitelist)
+    addAllPlayers(ply)
 end)
 
 hook.Add("PlayerDisconnected", "Music_PlayerDisconnected", function(ply)
