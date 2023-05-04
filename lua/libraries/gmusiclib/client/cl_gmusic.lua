@@ -83,7 +83,11 @@ local function CreateMusic(informations)
         else
             audioChannel:Play()
         end
-        GLocalMusic.CurrentAudio.audioChannel = audioChannel
+        if audioChannel:IsValid() then
+            GLocalMusic.CurrentAudio.audioChannel = audioChannel
+        else
+            return
+        end
     end)
     if informations.time != 0 and not informations.isBlockstreamed then
         timer.Simple(1, function()
@@ -105,6 +109,8 @@ net.Receive("GMusic_SendSong", function()
     local informations = net.ReadTable()
     if not table.IsEmpty(informations) then
         GLocalMusic.CurrentAudio = CreateMusic(informations)
+    else
+        GLocalMusic.Stop()
     end
 end)
 net.Receive("GMusic_GetTime", function()

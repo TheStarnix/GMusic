@@ -36,10 +36,6 @@ GMusicConfig.whitelistedLinksFunction = {
         base64url = string.Replace(base64url, "+", "-")
         return "https://api.onedrive.com/v1.0/shares/u!" .. base64url .. "/root/content"
     end,
-    ["Youtube"] = function(url)
-        local id = string.match(url, "v=(.+)")
-        return "https://youtubedl.mattjeanes.com/play?id=" .. id
-    end
 }
 GMusicConfig.staff = {
     ["superadmin"] = true,

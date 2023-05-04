@@ -116,3 +116,54 @@ list.Set("DesktopWindows", "StarnixMusic", {
 		StarnixMusic.OpenMenuFunction()
 	end
 })
+
+concommand.Add("starnix_test", function()
+	music = nil
+	local url = "https://www.youtube.com/watch?v=BZyH3ur-Yl8"
+	local encodedUrl = string.Replace(url, ":", "%3A")
+	encodedUrl = string.Replace(encodedUrl, "/", "%2F")
+	encodedUrl = string.Replace(encodedUrl, "?", "%3F")
+	encodedUrl = string.Replace(encodedUrl, "=", "%3D")
+	local apiURL = "https://t-one-youtube-converter.p.rapidapi.com/api/v1/createProcess?url=" .. encodedUrl .. "&format=mp3&responseFormat=json&lang=en"
+	print(apiURL)
+	http.Fetch( apiURL,
+		-- onSuccess function
+		function( body, length, headers, code )
+			print("OK")
+			-- The first argument is the HTML we asked for.
+			if body == nil then 
+				LocalPlayer():PrintMessage(HUD_PRINTTALK, "Error playing music: invalid API")
+			end
+			music = util.JSONToTable(body)
+			if istable(music) then
+				music = music.file
+			end
+			local flags = "noblock noplay"
+			sound.PlayURL(music, flags, function(audioChannel, errorID, errorName)
+				if errorID then
+					LocalPlayer():PrintMessage(HUD_PRINTTALK, "Error playing music: " .. errorName)
+					return
+				end
+				print("OK")
+				print(audioChannel:IsBlockStreamed())
+
+				audioChannel:SetVolume(1)
+				
+				audioChannel:Set3DEnabled(false)
+				audioChannel:Play()
+			end)
+		end,
+
+		-- onFailure function
+		function( message )
+			LocalPlayer():PrintMessage(HUD_PRINTTALK, "Error playing music: " .. message)
+		end,
+
+		-- header example
+		{ 
+			["X-Rapidapi-Key"] = "d208cb87cdmsha41faee1e6c93a7p18da02jsn4c01bc58787f",
+			["X-Rapidapi-Host"] = "t-one-youtube-converter.p.rapidapi.com"
+		}
+	)
+	
+end)
