@@ -345,7 +345,7 @@ function StarnixMusic.drawHUD()
         end
         local creatorNick = "???"
         local getCreator = GLocalMusic.GetCreator()
-        if getCreator then
+        if IsValid(getCreator) then
             creatorNick = getCreator:Nick()
         end
         -- Draw the background of the music player
