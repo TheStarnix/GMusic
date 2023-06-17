@@ -101,7 +101,7 @@ StarnixMusic.OpenMenuFunction = function()
 	buttonGroup:SizeToContents()
 	
 	buttonGroup.DoClick = function()
-		if GLocalMusic.IsCreated() then
+		if GLocalMusic.IsValidSong() then
             StarnixMusic.drawGroups()
         end
 	end
@@ -112,7 +112,7 @@ StarnixMusic.OpenMenuFunction = function()
 	buttonGroup.OnCursorExited = function()
 		buttonGroup:SetColor(color_white)
 	end
-	if not GLocalMusic.IsCreated() or LocalPlayer() ~= GLocalMusic.GetCreator() then
+	if not GLocalMusic.IsValidSong() or LocalPlayer() ~= GLocalMusic.GetCreator() then
 		buttonGroup:SetVisible(false)
 	end
 	--[[-------------------------------------------------------------------------

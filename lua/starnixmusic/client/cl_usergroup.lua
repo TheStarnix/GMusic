@@ -159,7 +159,7 @@ Function to refresh the content of the panel (list of whitelisted users)
 ---------------------------------------------------------------------------]]
 local function refreshList(usergroupsPanel, panelList, combobox)
     -- We check if the panel is created, if not, we create it
-    if not usergroupsPanel or not GLocalMusic.IsCreated() or not panelList or not combobox then return end
+    if not usergroupsPanel or not GLocalMusic.IsValidSong() or not panelList or not combobox then return end
     -- We remove all the elements of the panel
     panelList:Clear()
     combobox:Clear()
@@ -265,7 +265,7 @@ Function to draw the main panel containing the list of whitelisted users
 ---------------------------------------------------------------------------]]
 function StarnixMusic.drawGroups()
     if usergroupsPanel then return end
-    if not GLocalMusic.IsCreated() then return end
+    if not GLocalMusic.IsValidSong() then return end
 
     local boolForceAdded = false -- Will the player be forced to the whitelist?
     local index_startPos = 0

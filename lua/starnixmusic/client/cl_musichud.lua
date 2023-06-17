@@ -50,7 +50,7 @@ We create a function to draw the panel of the volume change.
 local function drawVolumePanel()
     if soundPanel then 
         soundPanel:Remove() end
-    if not GLocalMusic.IsCreated() then return end
+    if not GLocalMusic.IsValidSong() then return end
     local soundPanel = vgui.Create( "DFrame" )
     soundPanel:SetPos( ScrW()/2, ScrH()/2) -- Set the position of the panel
     soundPanel:SetSize(StarnixMusic.RespX(500), StarnixMusic.RespY(200)) -- Set the size of the panel
@@ -133,7 +133,7 @@ We create a function to draw the panel of the timing change request.
 ---------------------------------------------------------------------------]]
 local function drawTimePanel()
     if timePanel then timePanel:Remove() end
-    if not GLocalMusic.IsCreated() then return end
+    if not GLocalMusic.IsValidSong() then return end
     local timePanel = vgui.Create( "DFrame" )
     timePanel:SetPos( ScrW()/2, ScrH()/2) -- Set the position of the panel
     timePanel:SetSize(StarnixMusic.RespX(500), StarnixMusic.RespY(200)) -- Set the size of the panel
@@ -242,17 +242,10 @@ end
 We create a function to draw the music player.
 ---------------------------------------------------------------------------]]
 function StarnixMusic.drawHUD()
-    if IsValid(frameHudMusic) and not GLocalMusic.IsCreated() then 
-        frameHudMusic:Close()
-        return
-    end
-    if frameHudMusic then
-        frameHudMusic:Remove()
-    end
-    if not StarnixMusic.IsPlaying then return end 
-    if not GLocalMusic.IsCreated() then return end
+    if not GLocalMusic.IsValidSong() then return end
     local isStaff = StarnixMusic.adminGroups[LocalPlayer():GetUserGroup()] or false
     local creator = GLocalMusic.GetCreator() == LocalPlayer()
+
     local reduced = false
 
     local pauseState = GLocalMusic.IsPaused()
@@ -272,7 +265,7 @@ function StarnixMusic.drawHUD()
     pauseButton:SetSize(32, 32)
     pauseButton:SetVisible(true)
     pauseButton.DoClick = function()
-        if GLocalMusic.IsCreated() then
+        if GLocalMusic.IsValidSong() then
             pauseState = not pauseState
             changeMaterialButton(pauseState, pauseButton)
             net.Start("Music_PauseSong")
@@ -288,7 +281,7 @@ function StarnixMusic.drawHUD()
     timeButton:SetVisible(true)
     timeButton:SetMaterial(Materialbutton_time)
     timeButton.DoClick = function()
-        if GLocalMusic.IsCreated() then
+        if GLocalMusic.IsValidSong() then
             drawTimePanel()
         end
     end
@@ -300,7 +293,7 @@ function StarnixMusic.drawHUD()
     volumeButton:SetVisible(true)
     volumeButton:SetMaterial(Materialbutton_volume)
     volumeButton.DoClick = function()
-        if GLocalMusic.IsCreated() then
+        if GLocalMusic.IsValidSong() then
             drawVolumePanel()
         end
     end
@@ -312,7 +305,7 @@ function StarnixMusic.drawHUD()
     userButton:SetVisible(true)
     userButton:SetMaterial(Materialbutton_user)
     userButton.DoClick = function()
-        if GLocalMusic.IsCreated() then
+        if GLocalMusic.IsValidSong() then
             StarnixMusic.drawGroups()
         end
     end
@@ -340,7 +333,7 @@ function StarnixMusic.drawHUD()
 
 
     frameHudMusic.Paint = function(self, w, h)
-        if not GLocalMusic.IsCreated() then 
+        if not GLocalMusic.IsValidSong() then 
             frameHudMusic:Close()
         end
         local creatorNick = "???"
@@ -378,3 +371,21 @@ function StarnixMusic.drawHUD()
 
     end
 end
+
+hook.Add("Think", "StarnixMusic_HUDDisplay", function()
+    if IsValid(frameHudMusic) then return end
+    if GLocalMusic.IsValidSong() then 
+        StarnixMusic.drawHUD()
+    end
+end)
+
+concommand.Add( "gmusic_panic", function( ply, cmd, args )
+    if GLocalMusic.IsValidSong() then
+        GLocalMusic.Stop()
+    else
+        RunConsoleCommand("stopsound")
+    end
+    if IsValid(frameHudMusic) then
+        frameHudMusic:Close()
+    end
+end )

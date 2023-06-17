@@ -33,7 +33,6 @@ if CLIENT then
         language.Add("music.menu.nameError", "Please give a valid music name.")
         language.Add("music.menu.Error", "Error")
         language.Add("music.menu.Understood", "OK")
-        language.Add("music.musicLaunched", "Music launched !!")
         language.Add("music.urlNotWhitelisted", "The URL seems to not be whitelisted by the server.")
         language.Add("music.musicStopped", "Music stopped !")
         language.Add("music.musicPaused", "Music paused !")

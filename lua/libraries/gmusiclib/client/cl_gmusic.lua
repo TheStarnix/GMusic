@@ -19,6 +19,7 @@
 _G.GLocalMusic = {}
 GLocalMusic.__index = GLocalMusic-- If a key cannot be found in an object, it will look in it's metatable's __index metamethod.
 GLocalMusic.CurrentAudio = {} -- @field CurrentAudio (table) (table containing the current music object) (CLIENTSIDE)
+local musicIsValid = false -- @field musicIsValid (boolean) (boolean that return if the music is valid or not) (CLIENTSIDE)
 
 --- Function that convert a string to a binary number.
 local function b(str)
@@ -49,7 +50,7 @@ local modifications_blen = math.ceil( math.log(tableModifications.all, 2) )
 local function CreateMusic(informations)
     if not informations then return end
     local stream_owner = informations.creator or LocalPlayer()
-    if GLocalMusic.IsCreated() then
+    if GLocalMusic.IsValidSong() then
         GLocalMusic.Stop() -- Stop the current music if there is one
     end
     -- Play the music
@@ -88,6 +89,7 @@ local function CreateMusic(informations)
         else
             return
         end
+        musicIsValid = true
     end)
     if informations.time != 0 and not informations.isBlockstreamed then
         timer.Simple(1, function()
@@ -127,21 +129,10 @@ net.Receive("GMusic_GetTime", function()
     end
 end)
 
-
---- Function that return if the music is created or not by using the GLocalMusic.CurrentAudio variable.
--- @return boolean (true if the music is created, false if not)
-function GLocalMusic.IsCreated()
-    if GLocalMusic.CurrentAudio and next(GLocalMusic.CurrentAudio) ~= nil then -- Check if the table is empty
-        return true
-    else
-        return false
-    end
-end
-
 --- Function that return if the music is valid or not by using the GLocalMusic.CurrentAudio.audioChannel variable.
 -- @return boolean (true if the music is valid, false if not)
 function GLocalMusic.IsValidSong()
-    if GLocalMusic.CurrentAudio ~= nil and next(GLocalMusic.CurrentAudio) ~= nil and IsValid(GLocalMusic.CurrentAudio.audioChannel) then -- Check if the table is empty
+    if musicIsValid and GLocalMusic.CurrentAudio.audioChannel and  GLocalMusic.CurrentAudio.audioChannel:IsValid() then -- Check if the table is empty
         return true
     else
         return false
@@ -158,6 +149,7 @@ function GLocalMusic.Stop()
     else
         GLocalMusic.CurrentAudio.audioChannel:Stop() -- Stop the music
         GLocalMusic.CurrentAudio = nil -- Remove the audioChannel
+        musicIsValid = false
         return true
     end 
 end

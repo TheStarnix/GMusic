@@ -62,8 +62,11 @@ net.Receive("Music_SendSong", function(len, ply)
     local isEveryoneAdded = net.ReadBool() -- We store the choice of the player. Here, if the player want to add all players.
     local musicObject = GMusic.GetPlayerMusic(ply)
     local DataTable = nil
-    if musicObject then -- If the music object already exist, we destroy it in order to recreate it.
+    if musicObject then
         if musicObject:GetCreator() == ply then
+            if not url then url = musicObject:GetURL() end
+            if not name then name = musicObject:GetTitle() end
+            if not looping then looping = musicObject:GetLoop() end
             musicObject:SetURL(url)
             musicObject:SetTitle(name)
             musicObject:SetLoop(looping)
@@ -74,6 +77,7 @@ net.Receive("Music_SendSong", function(len, ply)
         end
 
     else
+        if not url or not name or not ply then return end
         DataTable = GMusic.create(url, ply, name, looping, 0, canEveryonePause)
     end
     if canEveryonePause and not StarnixMusic.adminGroups[ply:GetUserGroup()] then

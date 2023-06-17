@@ -83,7 +83,6 @@ end
 -- @param player Player (player to send the music object)
 local function sendMusicToPlayer(self, player)
     if not self or not player then return end -- Object or player not existing
-    print("OK3")
     net.Start("GMusic_SendSong")
         net.WriteTable(self)
     net.Send(player)

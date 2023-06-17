@@ -25,9 +25,7 @@ net.Receive("Music_SendSong", function()
         local musicData = net.ReadTable() -- We get the music informations
         StarnixMusic.musicInformations = musicData-- We save the music informations in a global variable.
 		if IsValid(frame) then frame:Close() end -- If not already closed, we close the music menu.
-		LocalPlayer():PrintMessage(HUD_PRINTTALK, language.GetPhrase("music.musicLaunched"))
         StarnixMusic.IsPlaying = true
-        StarnixMusic.drawHUD()
 	else
 		LocalPlayer():PrintMessage(HUD_PRINTTALK, language.GetPhrase("music.urlNotWhitelisted"))
 	end
@@ -39,7 +37,6 @@ This function is called when the player stops the music.
 net.Receive("Music_StopSong", function()
     LocalPlayer():PrintMessage(HUD_PRINTTALK, language.GetPhrase("music.musicStopped"))
     StarnixMusic.IsPlaying = false
-    StarnixMusic.drawHUD()
 end)
 
 --[[-------------------------------------------------------------------------
