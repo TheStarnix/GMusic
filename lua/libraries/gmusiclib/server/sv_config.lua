@@ -20,12 +20,10 @@ GMusicConfig.whitelistedLinks = {
     ["^https://cdn%.discordapp%.com/attachments/.+%.mp3$"] = "Discord", -- Discord links
     ["^https://www%.dropbox%.com/s/.+/.+%.mp3%?dl=1$"] = "Dropbox", -- Dropbox
     ["^https://1drv%.ms/u/.+%?e=.+$"] = "OneDrive", -- OneDrive
-    ["^https://www%.youtube%.com/watch%?v=.+"] = "Youtube" -- Youtube
 }
 
 GMusicConfig.whitelistedLinksFunctionNeed = {
     ["OneDrive"] = true,
-    ["Youtube"] = true,
 }
 
 GMusicConfig.whitelistedLinksFunction = {

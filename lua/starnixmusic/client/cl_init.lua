@@ -17,8 +17,6 @@
 
 if not StarnixMusic then StarnixMusic = {} end -- class StarnixMusic which contains all the functions and variables.
 StarnixMusic.materialspath = "materials/starnixmusic/" -- path to the materials folder
-if not StarnixMusic.musicInformations then StarnixMusic.musicInformations = {} end -- table containing the music object (if created).
-StarnixMusic.IsPlaying = false -- boolean which indicates if the music is playing or not.
 
 if not ConVarExists("starnixmusic_acceptMusic") then
 	CreateClientConVar("starnixmusic_acceptMusic", "true",false, false, "Accept the music requests ? (true = yes, false = no)") -- ConVar which indicates if the player accepts the music

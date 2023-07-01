@@ -69,7 +69,7 @@ local function drawVolumePanel()
     soundPanelTitle:SetPos(StarnixMusic.RespX(0), StarnixMusic.RespY(30))
     soundPanelTitle:SetSize(StarnixMusic.RespX(280), StarnixMusic.RespY(30))
     soundPanelTitle:SetFont("StarMusic_Title")
-    soundPanelTitle:SetText(language.GetPhrase("music.menu.changeVolume"))
+    soundPanelTitle:SetText(StarnixMusic.Language["music.menu.changeVolume"])
     soundPanelTitle:SetTextColor(color_white)
     soundPanelTitle:SizeToContents()
     soundPanelTitle:CenterHorizontal()
@@ -111,7 +111,7 @@ local function drawVolumePanel()
 
     local labelButtonRequest = vgui.Create("DLabel", buttonValidate)
     labelButtonRequest:SetPos(0,0)
-    labelButtonRequest:SetText(language.GetPhrase("music.menu.change"))
+    labelButtonRequest:SetText(StarnixMusic.Language["music.menu.change"])
     labelButtonRequest:SetFont("StarMusic_SubTitle")
     labelButtonRequest:SetTextColor(color_white)
     labelButtonRequest:SizeToContents()
@@ -152,7 +152,7 @@ local function drawTimePanel()
     timePanelTitle:SetPos(StarnixMusic.RespX(0), StarnixMusic.RespY(30))
     timePanelTitle:SetSize(StarnixMusic.RespX(280), StarnixMusic.RespY(30))
     timePanelTitle:SetFont("StarMusic_Title")
-    timePanelTitle:SetText(language.GetPhrase("music.hud.time"))
+    timePanelTitle:SetText(StarnixMusic.Language["music.hud.time"])
     timePanelTitle:SetTextColor(color_white)
     timePanelTitle:SizeToContents()
     timePanelTitle:CenterHorizontal()
@@ -212,7 +212,7 @@ local function drawTimePanel()
 
     local labelButtonRequest = vgui.Create("DLabel", buttonValidate)
     labelButtonRequest:SetPos(0,0)
-    labelButtonRequest:SetText(language.GetPhrase("music.menu.change"))
+    labelButtonRequest:SetText(StarnixMusic.Language["music.menu.change"])
     labelButtonRequest:SetFont("StarMusic_SubTitle")
     labelButtonRequest:SetTextColor(color_white)
     labelButtonRequest:SizeToContents()
@@ -347,7 +347,7 @@ function StarnixMusic.drawHUD()
         surface.DrawTexturedRect(0, 0, w, h)
 
         -- Draw the title of the music player
-        draw.DrawText(language.GetPhrase("music.hud.music"), "StarMusic_Title", w/2, StarnixMusic.RespY(20), color_white, TEXT_ALIGN_CENTER )
+        draw.DrawText(StarnixMusic.Language["music.hud.music"], "StarMusic_Title", w/2, StarnixMusic.RespY(20), color_white, TEXT_ALIGN_CENTER )
 
         -- Draw the title of the music
         draw.DrawText(GLocalMusic.GetTitle(), "StarMusic_SubTitle_Bold", w/2, StarnixMusic.RespY(60), color_white, TEXT_ALIGN_CENTER )
@@ -367,7 +367,7 @@ function StarnixMusic.drawHUD()
         draw.DrawText(string.ToMinutesSeconds(math.Round(GLocalMusic.GetTime())) .. " / " .. string.ToMinutesSeconds(math.Round(GLocalMusic.GetDuration())), "StarMusic_Text", w/2, StarnixMusic.RespY(90), color_white, TEXT_ALIGN_CENTER)
 
         -- Draw text showing who choosed the music
-        draw.DrawText(language.GetPhrase("music.hud.choosenBy") ..creatorNick, "StarMusic_Text", w/2, StarnixMusic.RespY(150), color_white, TEXT_ALIGN_CENTER )
+        draw.DrawText(StarnixMusic.Language["music.hud.choosenBy"] ..creatorNick, "StarMusic_Text", w/2, StarnixMusic.RespY(150), color_white, TEXT_ALIGN_CENTER )
 
     end
 end

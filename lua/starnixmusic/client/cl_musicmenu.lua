@@ -69,7 +69,7 @@ StarnixMusic.OpenMenuFunction = function()
 	panelOnglets.Paint = nil
 
 	local panelContent = vgui.Create( "DPanel", frame)
-	panelContent:SetPos( StarnixMusic.RespX(60), StarnixMusic.RespY(54) )
+	panelContent:SetPos( StarnixMusic.RespX(50), StarnixMusic.RespY(54) )
 	panelContent:SetSize( 910, frame:GetTall()-panelContent:GetY() )
 	panelContent.Paint = nil
 

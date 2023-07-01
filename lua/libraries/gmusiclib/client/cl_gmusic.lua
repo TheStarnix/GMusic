@@ -145,6 +145,8 @@ end
 function GLocalMusic.Stop()
     if not GLocalMusic.IsValidSong() then  -- Object not existing
         RunConsoleCommand("stopsound")
+        GLocalMusic.CurrentAudio = nil
+        musicIsValid = false
         return false 
     else
         GLocalMusic.CurrentAudio.audioChannel:Stop() -- Stop the music
@@ -177,6 +179,7 @@ function GLocalMusic.SetURL(url)
     if not GLocalMusic.IsValidSong() or not url then return false end -- Object not existing
     local tempInformations = GLocalMusic.CurrentAudio
     GLocalMusic.Stop()
+    tempInformations.time = 0
     tempInformations.url = url
     GLocalMusic.CurrentAudio = CreateMusic(tempInformations) -- Create a new audioChannel
     return true
@@ -196,12 +199,11 @@ end
 -- @param loop boolean (true if the music will loop, false if not)
 -- @return boolean (true if the loop state has been changed, false if not)
 function GLocalMusic.SetLoop(loop)
-    if not GLocalMusic.IsValidSong() or not loop then return false end -- Object not existing
+    if not GLocalMusic.IsValidSong() or loop == nil then return false end -- Object not existing
     if GLocalMusic.CurrentAudio.isBlockstreamed then
         LocalPlayer():PrintMessage(HUD_PRINTTALK, "Music is blockstreamed, looping disabled.")
         return false
     end
-    GLocalMusic.CurrentAudio.loop = loop
     GLocalMusic.CurrentAudio.audioChannel:EnableLooping(loop) -- Set the loop state
     return true
 end

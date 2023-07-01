@@ -42,13 +42,13 @@ function addAllPlayers(ply)
     for k,v in ipairs(player.GetAll()) do
         if v ~= entityOwner and not whitelistedOnMusic[v] then
             filterWhitelist:AddPlayer(v)
-            musicObject:AddPlayer(v)
+            local isValidRequest = musicObject:AddPlayer(v,ply)
+            if isValidRequest == false then
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.noperms"])
+                return false 
+            end
         end
     end
-    net.Start("Music_SendSong")
-        net.WriteBool(true)
-        net.WriteTable(musicObject)
-    net.Send(filterWhitelist)
 end
 
 --[[-------------------------------------------------------------------------
@@ -57,41 +57,46 @@ Function called when a player want to create a music with the MENU.
 net.Receive("Music_SendSong", function(len, ply)
     local url = net.ReadString() -- We store the url of the music.
     local name = net.ReadString() -- We store the name of the music.
+    local tablePermissions = {}
     local looping = net.ReadBool() -- We store the choice of the player. Here, if the player want to loop the music or not.
-    local canEveryonePause = net.ReadBool() -- We store the choice of the player. Here, if the player want to allow everyone to pause the music or not.
+    tablePermissions["perm_time"] = net.ReadBool()
+    tablePermissions["perm_changeMusic"] = net.ReadBool()
+    tablePermissions["perm_changeTitle"] = net.ReadBool()
+    tablePermissions["perm_addPlayers"] = net.ReadBool()
+    tablePermissions["perm_rmPlayers"] = net.ReadBool()
+    tablePermissions["perm_pause"] = net.ReadBool()
     local isEveryoneAdded = net.ReadBool() -- We store the choice of the player. Here, if the player want to add all players.
     local musicObject = GMusic.GetPlayerMusic(ply)
-    local DataTable = nil
+    if isEveryoneAdded and not StarnixMusic.adminGroups[ply:GetUserGroup()] then
+        isEveryoneAdded = false
+    end
     if musicObject then
         if musicObject:GetCreator() == ply then
-            if not url then url = musicObject:GetURL() end
-            if not name then name = musicObject:GetTitle() end
-            if not looping then looping = musicObject:GetLoop() end
-            musicObject:SetURL(url)
-            musicObject:SetTitle(name)
-            musicObject:SetLoop(looping)
-            DataTable = musicObject
+            if musicObject:GetTitle() != name then
+                local validRequest = musicObject:SetTitle(ply, name)
+                if validRequest == false then
+                    ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.noperms"])
+                end
+            end
+            if musicObject:GetLoop() != looping then
+                musicObject:SetLoop(looping)
+            end
+            if musicObject:GetURL() != url then
+                local validRequest = musicObject:SetURL(ply, url)
+                if validRequest == false then
+                    ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.noperms"])
+                end
+            end
         else
             musicObject:Stop(ply)
-            DataTable = GMusic.create(url, ply, name, looping, 0, canEveryonePause)
+            GMusic.create(url, ply, name, looping, 0, tablePermissions)
         end
 
     else
         if not url or not name or not ply then return end
-        DataTable = GMusic.create(url, ply, name, looping, 0, canEveryonePause)
+        GMusic.create(url, ply, name, looping, 0, canEveryonePause)
     end
-    if canEveryonePause and not StarnixMusic.adminGroups[ply:GetUserGroup()] then
-        canEveryonePause = false
-    end
-    net.Start("Music_SendSong") -- We send a net message to the client in order to tell that the music is created.
-    if DataTable then 
-        net.WriteBool(true) -- Is the music object valid ?
-        net.WriteTable(DataTable)-- We send the music object to the client (for the HUD).
-    else
-        net.WriteBool(false) -- Is the music object valid ?
-        net.WriteTable({})
-    end
-    net.Send(ply) 
+
     if isEveryoneAdded then
         addAllPlayers(ply)
     end
@@ -101,15 +106,8 @@ net.Receive("Music_StopSong", function(len, ply)
     local musicObject = GMusic.GetPlayerMusic(ply)
     if musicObject then
         musicObject:Stop(ply)
-        net.Start("Music_StopSong")
-        net.Send(ply)
-        local ownerOfTheSong = musicObject:GetCreator()
-        if ownerOfTheSong == ply then
-            StarnixMusic.MusicPendingWhitelist[musicObject.id] = nil
-            
-        end
     else
-        ply:PrintMessage(HUD_PRINTTALK, "You don't have any music playing.")
+        ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
     end
 end)
 
@@ -118,7 +116,7 @@ net.Receive("Music_PauseSong", function(len, ply)
     if musicObject then
         musicObject:Pause(ply)
     else
-        ply:PrintMessage(HUD_PRINTTALK, "You don't have any music playing.")
+        ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
     end
 end)
 
@@ -128,7 +126,7 @@ net.Receive("Music_ChangeVolume", function(len, ply)
         local volume = net.ReadFloat()
         musicObject:SetVolume(volume)
     else
-        ply:PrintMessage(HUD_PRINTTALK, "You don't have any music playing.")
+        ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
     end
 end)
 
@@ -138,7 +136,7 @@ net.Receive("Music_ChangeTime", function(len, ply)
         local time = net.ReadFloat()
         musicObject:SetTime(ply, time)
     else
-        ply:PrintMessage(HUD_PRINTTALK, "You don't have any music playing.")
+        ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
     end
 end)
 
@@ -153,11 +151,12 @@ net.Receive("Music_MenuGetWhitelisted", function(len,ply)
         if not data then return end
         local maxPlyWhitelisted = musicObject:GetNumberWhitelisted()
         net.Start("Music_MenuGetWhitelisted")
+            net.WriteBool(false)  -- We send false to tell the client that we sent a table of players.
             net.WriteTable(data)
             net.WriteUInt(maxPlyWhitelisted, 8)
         net.Send(ply)
     else
-        ply:PrintMessage(HUD_PRINTTALK, "You don't have any music playing.")
+        ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
     end
 end) 
 
@@ -165,17 +164,16 @@ net.Receive("Music_MenuWLRemovePlayer", function(len,ply)
     local musicObject = GMusic.GetPlayerMusic(ply)
     if musicObject then
         local target = net.ReadEntity()
-        musicObject:RemovePlayer(target)
+        musicObject:RemovePlayer(target, ply)
         local data = musicObject:GetWhitelisted()
         local maxPlyWhitelisted = musicObject:GetNumberWhitelisted()
         net.Start("Music_MenuGetWhitelisted")
+            net.WriteBool(false)  -- We send false to tell the client that we sent a table of players.
             net.WriteTable(data)
             net.WriteUInt(maxPlyWhitelisted, 8)
         net.Send(ply)
-        net.Start("Music_StopSong")
-        net.Send(target)
     else
-        ply:PrintMessage(HUD_PRINTTALK, "You don't have any music playing.")
+        ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
     end
 end)
 
@@ -189,23 +187,33 @@ net.Receive("Music_MenuWLAddPlayer", function(len,ply)
                 local musicObjectTarget = GMusic.GetPlayerMusic(target)
                 musicObjectTarget:Stop(target)
             end
-            musicObject:AddPlayer(target)
-            net.Start("Music_SendSong")
-                net.WriteBool(true)
-                net.WriteTable(musicObject)
-            net.Send(target)
+            musicObject:AddPlayer(target, ply)
             local data = musicObject:GetWhitelisted()
             net.Start("Music_MenuGetWhitelisted")
-                net.WriteTable(data)
+                net.WriteBool(true) -- We send true to tell the client that we only added one player.
+                net.WriteEntity(target)
             net.Send(ply)
         elseif StarnixMusic.MusicPendingWhitelist[musicObject.id] and StarnixMusic.MusicPendingWhitelist[musicObject.id][target] then -- We check the cooldown to prevent spamming requests.
             if CurTime() < StarnixMusic.MusicPendingWhitelist[musicObject.id][target] then
-                ply:PrintMessage(HUD_PRINTTALK, "You have to wait before adding this player again.")
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.wl.wait"])
             end
         else
-            if StarnixMusic.blockRequestPlayers[ply] then -- We check if the player has desactivated music requests.
-                ply:PrintMessage(HUD_PRINTTALK, "This player has desactivated music requests.")
-            elseif not GMusic.isListeningMusic(target) then -- We check if the target is listening to music.
+            if not target then
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.wl.notconnected"])
+                return ""
+            elseif target == ply then
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.wl.canturself"])
+                return ""
+            elseif StarnixMusic.ListPlayersPending[target] or (StarnixMusic.MusicPendingWhitelist[musicObject.id] and StarnixMusic.MusicPendingWhitelist[musicObject.id][target]) then
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.wl.alreadypending"])
+                return ""
+            elseif musicObject:isWhitelisted(target) then
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.wl.already"])
+                return ""
+            elseif StarnixMusic.blockRequestPlayers[target] then
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.wl.notaccepted"])
+                return ""
+            else
                 -- Send the confirmation POPUP
                 net.Start("Music_WLPopup")
                     net.WriteEntity(ply) -- The name of the player who want to add the target.
@@ -216,12 +224,10 @@ net.Receive("Music_MenuWLAddPlayer", function(len,ply)
                 end
                 StarnixMusic.MusicPendingWhitelist[musicObject.id][target] = CurTime()+StarnixMusic.cooldownSendrequest
                 StarnixMusic.ListPlayersPending[target] = true
-            else
-                ply:PrintMessage(HUD_PRINTTALK, "This player is already listening to music.")
             end
         end
     else    
-        ply:PrintMessage(HUD_PRINTTALK, "You don't have any music playing.")
+        ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
     end
 end)
 
@@ -229,13 +235,9 @@ net.Receive("Music_WLPopup", function(len,target)
     local ply = net.ReadEntity()
     local musicObject = GMusic.GetPlayerMusic(ply)
     if musicObject then
-        musicObject:AddPlayer(target)
-        net.Start("Music_SendSong")
-            net.WriteBool(true)
-            net.WriteTable(musicObject)
-        net.Send(target)
+        musicObject:AddPlayer(target, musicObject:GetCreator())
     else
-        target:PrintMessage(HUD_PRINTTALK, "The music isn't playing anymore.")
+        target:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.play.notplaying"])
     end
 end)
 
@@ -261,12 +263,16 @@ net.Receive("Music_MenuChangeSongSettings", function(len, ply)
     if not StarnixMusic.adminGroups[ply:GetUserGroup()] then return end
 
     if bit.band(editionToMake, tableModifications.title) ~= 0 then
-        musicObject:SetTitle(editedValue)
+        local validRequest = musicObject:SetTitle(ply, editedValue)
+        if validRequest == false then
+            ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.noperms"])
+        end
+
     elseif bit.band(editionToMake, tableModifications.url) ~= 0 then
-        if musicObject:SetURL(editedValue) then
-            ply:PrintMessage(HUD_PRINTTALK, "The URL has been changed.")
+        if musicObject:SetURL(ply, editedValue) then
+            ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.change.url"])
         else
-            ply:PrintMessage(HUD_PRINTTALK, "The URL isn't whitelisted.")
+            ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.change.url.notwl"])
         end
     elseif bit.band(editionToMake, tableModifications.loop) ~= 0 then
         local editedValue = tobool(editedValue)
@@ -296,15 +302,11 @@ net.Receive("Music_WLAcceptation", function(len,ply)
     if not musicObject or accept == nil then return end
     if not StarnixMusic.MusicPendingWhitelist[musicObject.id] or not  StarnixMusic.MusicPendingWhitelist[musicObject.id][ply] then return end
     if accept then
-        musicObject:AddPlayer(ply)
-        net.Start("Music_SendSong")
-            net.WriteBool(true)
-            net.WriteTable(musicObject)
-        net.Send(ply)
+        musicObject:AddPlayer(ply, musicObject:GetCreator())
         StarnixMusic.MusicPendingWhitelist[musicObject.id][ply] = nil
         StarnixMusic.ListPlayersPending[ply] = nil
     else
-        ownerEntity:PrintMessage(HUD_PRINTTALK, "The player has refused your request.")
+        ownerEntity:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.wl.refused"])
     end
 end)
 
@@ -332,3 +334,181 @@ net.Receive("Music_GetRequestConvar", function(len, ply)
         StarnixMusic.blockRequestPlayers[ply] = nil
     end
 end)
+
+hook.Add( "PlayerSay", "Music_PendingMusic", function( ply, text )
+	if (string.sub(text, 1, 6) == "!music") then
+        if(text == "!music") then
+            ply:PrintMessage(HUD_PRINTTALK, "== GMUSIC ==")
+            ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.cmd.available"])
+            ply:PrintMessage(HUD_PRINTTALK, "!music stop:" .. StarnixMusic.Language["music.cmd.stop"])
+            ply:PrintMessage(HUD_PRINTTALK, "!music start {url}:" .. StarnixMusic.Language["music.cmd.start"])
+            ply:PrintMessage(HUD_PRINTTALK, "!music pause:" .. StarnixMusic.Language["music.cmd.pause"])
+            ply:PrintMessage(HUD_PRINTTALK, "!music volume {0-3}:" .. StarnixMusic.Language["music.cmd.volume"])
+            ply:PrintMessage(HUD_PRINTTALK, "!music loop {true/false}:" .. StarnixMusic.Language["music.cmd.loop"])
+            ply:PrintMessage(HUD_PRINTTALK, "!music title {title}:" .. StarnixMusic.Language["music.cmd.title"])
+            ply:PrintMessage(HUD_PRINTTALK, "!music whitelist {pseudo}:" .. StarnixMusic.Language["music.cmd.wl"])
+            ply:PrintMessage(HUD_PRINTTALK, "(ADMIN) !music startall {url}:" .. StarnixMusic.Language["music.cmd.startall"])
+            ply:PrintMessage(HUD_PRINTTALK, "(ADMIN) !music startallnoperms {url}:" .. StarnixMusic.Language["music.cmd.startallnoperms"])
+            ply:PrintMessage(HUD_PRINTTALK, "(ADMIN) !music startnoperms {url}:" .. StarnixMusic.Language["music.cmd.startnoperms"])
+            ply:PrintMessage(HUD_PRINTTALK, "== GMUSIC ==")
+        elseif (text == "!music stop") then
+            local musicObject = GMusic.GetPlayerMusic(ply)
+            if musicObject then
+                musicObject:Delete()
+            else
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
+            end
+        elseif(text == "!music pause") then
+            local musicObject = GMusic.GetPlayerMusic(ply)
+            if musicObject then
+                musicObject:Pause(ply)
+            else
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
+            end
+        elseif (string.sub(text, 1, 22) == "!music startallnoperms") then
+            if not ply:IsAdmin() then 
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.noperms"])
+                return "" 
+            end
+            local url = string.sub(text, 24)
+            if url == "" then return "" end
+            local musicObject = GMusic.GetPlayerMusic(v)
+            if musicObject then
+                musicObject:Delete()
+            end
+            local musicObject = GMusic.create(url, ply, "", true, 0, false)
+            if not musicObject then
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.change.url.notwl"])
+            else
+                addAllPlayers(ply)                
+            end
+        elseif (string.sub(text, 1, 19) == "!music startnoperms") then
+            if not ply:IsAdmin() then return "" end
+            local url = string.sub(text, 21)
+            if url == "" then return "" end
+            local musicObject = GMusic.GetPlayerMusic(v)
+            if musicObject then
+                musicObject:Delete()
+            end
+            local musicObject = GMusic.create(url, ply, "", true, 0, false)
+            if not musicObject then
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.change.url.notwl"])
+            end
+        elseif (string.sub(text, 1, 15) == "!music startall") then
+            if not ply:IsAdmin() then 
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.noperms"])
+                return "" 
+            end
+            local url = string.sub(text, 17)
+            if not url or url == "" then
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.change.nourl"])
+                return "" 
+            end
+            local musicObject = GMusic.GetPlayerMusic(v)
+            if musicObject then
+                musicObject:Delete()
+            end
+            local musicObject = GMusic.create(url, ply, "", true, 0, true)
+            if not musicObject then
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.change.url.notwl"])
+            else
+                addAllPlayers(ply)                
+            end
+        elseif (string.sub(text, 1, 12) == "!music start") then
+            local url = string.sub(text, 14)
+            if url == "" then return "" end
+            local musicObject = GMusic.GetPlayerMusic(ply)
+            if musicObject then
+                musicObject:Delete()
+            end
+            
+            local musicObject = GMusic.create(url, ply, "", true, 0, true)
+            if not musicObject then
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.change.url.notwl"])
+            end
+        elseif (text == "!music pause") then
+            local musicObject = GMusic.GetPlayerMusic(ply)
+            if musicObject then
+                musicObject:Pause()
+            else
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
+            end
+        elseif (string.sub(text, 1, 13) == "!music volume") then
+            local volume = tonumber(string.sub(text, 15))
+            if not volume then return "" end
+            local musicObject = GMusic.GetPlayerMusic(ply)
+            if musicObject then
+                musicObject:SetVolume(volume)
+            else
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
+            end
+        elseif (string.sub(text, 1, 11) == "!music loop") then
+            local loop = tobool(string.sub(text, 13))
+
+            if loop == nil then return "" end
+            local musicObject = GMusic.GetPlayerMusic(ply)
+            if musicObject then
+                musicObject:SetLoop(loop)
+            else
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
+            end
+        elseif (string.sub(text, 1, 12) == "!music title") then
+            local title = string.sub(text, 14)
+            if title == "" then return "" end
+            local musicObject = GMusic.GetPlayerMusic(ply)
+            if musicObject then
+                local validrequest = musicObject:SetTitle(ply, title)
+                if validRequest == false then
+                    ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.noperms"])
+                end
+            else
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
+            end
+        elseif (string.sub(text, 1, 16) == "!music whitelist") then
+            local pseudo = string.sub(text, 18)
+            if pseudo == "" then return "" end
+            local musicObject = GMusic.GetPlayerMusic(ply)
+            if musicObject then
+                local target = nil
+                for k,v in pairs(player.GetAll()) do
+                    if string.find(string.lower(v:Nick()), string.lower(pseudo)) then
+                        target = v
+                        break
+                    end
+                end
+                if not target then
+                    ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.wl.notconnected"])
+                    return ""
+                elseif target == ply then
+                    ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.wl.canturself"])
+                    return ""
+                elseif StarnixMusic.ListPlayersPending[target] or (StarnixMusic.MusicPendingWhitelist[musicObject.id] and StarnixMusic.MusicPendingWhitelist[musicObject.id][target]) then
+                    ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.wl.alreadypending"])
+                    return ""
+                elseif musicObject:isWhitelisted(target) then
+                    ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.wl.already"])
+                    return ""
+                elseif StarnixMusic.blockRequestPlayers[target] then
+                    ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.wl.notaccepted"])
+                    return ""
+                else
+                    net.Start("Music_WLPopup")
+                        net.WriteEntity(ply) -- The name of the player who want to add the target.
+                        net.WriteString(musicObject:GetTitle()) -- The name of the music.
+                    net.Send(target)
+                    if not StarnixMusic.MusicPendingWhitelist[musicObject.id] then
+                        StarnixMusic.MusicPendingWhitelist[musicObject.id] = {}
+                    end
+                    StarnixMusic.MusicPendingWhitelist[musicObject.id][target] = CurTime()+StarnixMusic.cooldownSendrequest
+                    StarnixMusic.ListPlayersPending[target] = true
+                    ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.wl.sent"])
+                end
+
+            else
+                ply:PrintMessage(HUD_PRINTTALK, StarnixMusic.Language["music.handle.nomusic"])
+            end
+        end
+        return ""
+	end
+
+end )

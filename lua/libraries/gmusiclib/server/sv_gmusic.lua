@@ -149,15 +149,17 @@ end
 -- @return boolean (true if the music has been deleted, false if not existing)
 function GMusic:Delete()
     if not self then return false end
-    if self.playing then
-        self.playing = false
-        AddEdit(tableModifications.playing, self, nil)
-        for k, _ in pairs(self.whitelisted) do
-            playersListeningMusic[k] = nil
-        end
+    self.playing = false
+    AddEdit(tableModifications.playing, self, nil)
+    for k, _ in pairs(self.whitelisted) do
+        playersListeningMusic[k] = nil
     end
     unregisterID(self.id)
-    return true -- Return true if the music has been deleted
+    if not self then 
+        return true 
+    else
+        return false
+    end
 end
 
 --- Local function to verify if a URL is in the whitelist.
@@ -195,9 +197,17 @@ end
 -- @param title string (title of the music)
 -- @param loop boolean (true if the music is looped, false if not)
 -- @param time number (time of the music)
--- @param canEveryonePause boolean (true if everyone can pause the music, false if not)
+-- @param permissions table
+-- Exceptations permissions:
+-- tablePermissions["perm_time"] : true = everyone can. false = only the owner and the staff can.
+-- tablePermissions["perm_changeMusic"] : true = everyone can. false = only the owner and the staff can.
+-- tablePermissions["perm_changeTitle"] : true = everyone can. false = only the owner and the staff can.
+-- tablePermissions["perm_addPlayers"] : true = everyone can. false = only the owner and the staff can.
+-- tablePermissions["perm_rmPlayers"] : true = everyone can. false = only the owner and the staff can.
+-- tablePermissions["perm_pause"] : true = everyone can. false = only the owner and the staff can.
 -- @return table (music object)
-function GMusic.create(url, creator, title, loop, time, canEveryonePause)
+function GMusic.create(url, creator, title, loop, time, tablePermissions)
+    if tablePermissions == {} then return end
     local urlWhitelist = isURLInWhitelist(url)
     if not urlWhitelist then
         creator:PrintMessage(HUD_PRINTTALK, "GMusic: The URL is not in the whitelist.")
@@ -216,7 +226,7 @@ function GMusic.create(url, creator, title, loop, time, canEveryonePause)
 
         playing = true,
         pause = false,
-        canEveryonePause = canEveryonePause,
+        tablePermissions = tablePermissions,
 
         volume = 1,
         time = time,
@@ -257,10 +267,14 @@ function GMusic:GetURL()
 end
 
 --- Public Method to set the object URL (change the music).
+-- @param ply player (the player who request the change)
 -- @param url string (url of the music)
 -- @return boolean (true if the modification has been added, false if not existing/error)
-function GMusic:SetURL(url)
+function GMusic:SetURL(ply, url)
     if not self then return end
+    if not IsValid(ply) or not IsEntity(ply) or not ply:IsPlayer() then return false end
+    -- Check if the player has the permission to do that change
+    if not self.tablePermissions["perm_changeMusic"] and self:GetCreator() != ply and not GMusic.isStaff(ply) then return false end
     if not isstring(url) then return false end
     local urlWhitelist = isURLInWhitelist(url)
     if not urlWhitelist then
@@ -286,10 +300,14 @@ function GMusic:GetTitle()
 end
 
 --- Public Method to set the object Title.
+-- @param ply Player (the one who request the change)
 -- @param title string (title of the object)
 -- @return boolean (true if the modification has been added, false if not existing/error)
-function GMusic:SetTitle(title)
+function GMusic:SetTitle(ply, title)
     if not self then return end
+    if not IsValid(ply) or not IsEntity(ply) or not ply:IsPlayer() then return false end
+    -- Check if the player has the permission to do that change
+    if not self.tablePermissions["perm_changeTitle"] and self:GetCreator() != ply and not GMusic.isStaff(ply) then return false end
     if not isstring(title) then return false end
     self.title = title
     return AddEdit(tableModifications.title, self)
@@ -354,17 +372,15 @@ function GMusic:IsPaused()
 end
 
 --- Public Method to set if this music is paused.
--- @param player Player (player who want to pause the music)
+-- @param ply Player (player who want to pause the music)
 -- @return boolean (true if the modification has been added, false if not existing/error)
-function GMusic:Pause(player)
+function GMusic:Pause(ply)
     if not self then return false end
-    if not IsValid(player) then return false end
-    if self.canEveryonePause or self:GetCreator() == player or GMusic.isStaff(player) then
-        self.pause = !self.pause
-        return AddEdit(tableModifications.pause, self)
-    else
-        return false
-    end
+    if not IsValid(ply) or not IsEntity(ply) or not ply:IsPlayer() then return false end
+    -- Check if the player has the permission to do that change
+    if not self.tablePermissions["perm_pause"] and self:GetCreator() != ply and not GMusic.isStaff(ply) then return false end
+    self.pause = !self.pause
+    return AddEdit(tableModifications.pause, self)
 end
 
 --- Public Method to get the length of the music.
@@ -401,35 +417,37 @@ function GMusic:GetTime()
 end
 
 --- Public Method to set the time of the music.
--- @param player Player (player who want to change the time)
+-- @param ply Player (player who want to change the time)
 -- @param time number (time of the music)
 -- @return boolean (true if the modification has been added, false if not existing/error)
-function GMusic:SetTime(player, time)
+function GMusic:SetTime(ply, time)
     if not self then return end
-    if not IsValid(player) then return false end
+    if not IsValid(ply) or not IsEntity(ply) or not ply:IsPlayer() then return false end
+    -- Check if the player has the permission to do that change
+    if not self.tablePermissions["perm_time"] and self:GetCreator() != ply and not GMusic.isStaff(ply) then return false end
     if not isnumber(time) then return false end
-    if self.canEveryonePause or self:GetCreator() == player or GMusic.isStaff(player) then
-        self.time = time
-        return AddEdit(tableModifications.time, self)
-    else
-        return false
-    end
+    self.time = time
+    return AddEdit(tableModifications.time, self)
     
 end
 
 --- Public Method to add a player to the whitelist.
 -- @param ply Player (player to add)
+-- @param requester Player (the player who asked the change)
 -- @return boolean (true if the modification has been added, false if not existing/error)
-function GMusic:AddPlayer(ply)
+function GMusic:AddPlayer(ply, requester)
     if not self then return end
     if not IsValid(ply) then return false end
+    if not IsValid(requester) or not IsEntity(requester) or not requester:IsPlayer() then return false end
+    -- Check if the player has the permission to do that change
+    if not self.tablePermissions["perm_addPlayers"] and self:GetCreator() != requester and not GMusic.isStaff(requester) then return false end
     if playersListeningMusic[ply] then 
         if not force then 
             return false 
         else
             local musicObject = GMusic.GetPlayerMusic(ply)
             if musicObject then
-                musicObject:RemovePlayer(ply)
+                musicObject:RemovePlayer(ply, musicObject:GetCreator())
             end
         end
     end -- If the player is already listening music, return false
@@ -446,10 +464,14 @@ end
 
 --- Public Method to remove a player from the whitelist.
 -- @param ply Player (player to remove)
+-- @param requester Player (the player who asked the change)
 -- @return boolean (true if the modification has been added, false if not existing/error)
-function GMusic:RemovePlayer(ply)
+function GMusic:RemovePlayer(ply, requested)
     if not self then return end
     if not IsValid(ply) then return false end
+    if not IsValid(requester) or not IsEntity(requester) or not requester:IsPlayer() then return false end
+    -- Check if the player has the permission to do that change
+    if not self.tablePermissions["perm_rmPlayers"] and self:GetCreator() != requester and not GMusic.isStaff(requester) then return false end
     if self.whitelisted then
         self.whitelisted[ply] = nil
         playersListeningMusic[ply] = nil -- Add the player to the list of players listening music
@@ -490,12 +512,17 @@ function GMusic:Stop(ply)
     if self:GetCreator() == ply then -- If the player is the creator of the music, we stop the music for everyone.
         return self:Delete()
     else -- If the player is not the creator of the music, we stop the music only for him.
-        local temporary = self
-        temporary.playing = false
-        AddEdit(tableModifications.playing, temporary, ply) -- We only send the modification to the player, not all.
-        self.whitelisted[ply] = nil
-        playersListeningMusic[ply] = nil
-        return AddEdit(tableModifications.whitelist, self, nil)
+        if not self.whitelisted[ply] then 
+            ply:ConCommand("stopsound")
+            return false 
+        else
+            local temporary = self
+            temporary.playing = false
+            AddEdit(tableModifications.playing, temporary, ply) -- We only send the modification to the player, not all.
+            self.whitelisted[ply] = nil
+            playersListeningMusic[ply] = nil
+            return AddEdit(tableModifications.whitelist, self, nil)
+        end
     end
 end
 
@@ -564,6 +591,20 @@ function GMusic.GetAll(startPos, endPos)
     return tableGMusic
 end
 
+-- Function isWhitelisted to check if a player is whitelisted in the specified music object
+-- @param ply Player (player to check)
+-- @return boolean (true if the player is whitelisted, false if not)
+function GMusic:isWhitelisted(ply)
+    if not self then return end
+    if not IsValid(ply) then return false end
+    if self.whitelisted then
+        return self.whitelisted[ply]
+    else
+        return false
+    end
+end
+
+
 -- Private function that unregisterID of disconnected players.
 hook.Add("PlayerDisconnected", "GMusicLib_PlayerDisconnected", function(ply)
     if GMusic.isListeningMusic(ply) then
@@ -573,7 +614,7 @@ hook.Add("PlayerDisconnected", "GMusicLib_PlayerDisconnected", function(ply)
         if music:GetCreator() == ply then
             music:Delete()
         else
-            music:RemovePlayer(ply)
+            music:RemovePlayer(ply, music:GetCreator())
         end
     end
 end)

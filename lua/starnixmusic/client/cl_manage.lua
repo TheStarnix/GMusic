@@ -51,12 +51,12 @@ local tableModifications = {
 local function changeLoopButton(button, labelLoop,  state)
     if state then
         button:SetImage(frameLoop)
-        labelLoop:SetText(language.GetPhrase("music.menu.loopLabelYes"))
+        labelLoop:SetText(StarnixMusic.Language["music.menu.loopLabelYes"])
         labelLoop:SizeToContents()
         labelLoop:Center()
     else
         button:SetImage(frameNoLoop)
-        labelLoop:SetText(language.GetPhrase("music.menu.loopLabelNo"))
+        labelLoop:SetText(StarnixMusic.Language["music.menu.loopLabelNo"])
         labelLoop:SizeToContents()
         labelLoop:Center()
     end
@@ -93,7 +93,7 @@ local function editMenu(panelContent, target, editionToMate)
     editTitle:SetPos(0, 0)
     editTitle:SetFont("StarMusic_Title")
     editTitle:SetTextColor(color_white)
-    editTitle:SetText(language.GetPhrase("music.menu.admin.edit"))
+    editTitle:SetText(StarnixMusic.Language["music.menu.admin.edit"])
     editTitle:SizeToContents()
     editTitle:CenterHorizontal()
 
@@ -106,7 +106,7 @@ local function editMenu(panelContent, target, editionToMate)
     local editedValue = nil
 
     if bit.band(editionToMate, tableModifications.loop) ~= 0 then -- If the modification is the loop state
-        editLabel:SetText(language.GetPhrase("music.menu.admin.loop"))
+        editLabel:SetText(StarnixMusic.Language["music.menu.admin.loop"])
         editFirstValue = target.loop -- Variable to store the loop state
         editedValue = target.loop
         --[[-------------------------------------------------------------------------
@@ -129,7 +129,7 @@ local function editMenu(panelContent, target, editionToMate)
         labelLoop:Center()
         changeLoopButton(imageButtonLoop, labelLoop, editedValue)
     elseif bit.band(editionToMate, tableModifications.volume) ~= 0 then -- If the modification is the volume
-        editLabel:SetText(language.GetPhrase("music.menu.admin.volume"))
+        editLabel:SetText(StarnixMusic.Language["music.menu.admin.volume"])
         editFirstValue, editedValue = target.volume -- Variable to store the volume
         --[[-------------------------------------------------------------------------
         Change the volume of the music
@@ -154,11 +154,11 @@ local function editMenu(panelContent, target, editionToMate)
             editedValue = value
         end
     elseif bit.band(editionToMate, tableModifications.whitelisted) ~= 0 then -- If the modification is the whitelisted users
-        editLabel:SetText(language.GetPhrase("music.menu.admin.countusers"))
+        editLabel:SetText(StarnixMusic.Language["music.menu.admin.countusers"])
         -- TODO: Send a net to the server to get the users.
     else
         if bit.band(editionToMate, tableModifications.url) ~= 0 then -- If the modification is the url
-            editLabel:SetText(language.GetPhrase("music.menu.admin.url"))
+            editLabel:SetText(StarnixMusic.Language["music.menu.admin.url"])
             editFirstValue, editedValue = target.url -- Variable to store the url
             --[[-------------------------------------------------------------------------
             TextEntry to enter the URL of the music
@@ -181,7 +181,7 @@ local function editMenu(panelContent, target, editionToMate)
                 editedValue = self:GetValue()
             end
         else
-            editLabel:SetText(language.GetPhrase("music.menu.admin.name"))
+            editLabel:SetText(StarnixMusic.Language["music.menu.admin.name"])
             editFirstValue, editedValue = target.title -- Variable to store the name  
             --[[-------------------------------------------------------------------------
             TextEntry to enter the title of the music
@@ -234,7 +234,7 @@ local function editMenu(panelContent, target, editionToMate)
 
     local labelButtonRequest = vgui.Create("DLabel", buttonRequest)
     labelButtonRequest:SetPos(0,0)
-    labelButtonRequest:SetText(language.GetPhrase("music.menu.change"))
+    labelButtonRequest:SetText(StarnixMusic.Language["music.menu.change"])
     labelButtonRequest:SetFont("StarMusic_SubTitle")
     labelButtonRequest:SetTextColor(color_white)
     labelButtonRequest:SizeToContents()
@@ -249,7 +249,7 @@ local function informationsMenu(panelContent, target)
     --[[-------------------------------------------------------------------------
     NAME EDIT
     ---------------------------------------------------------------------------]]
-    informationsDerma:AddOption(language.GetPhrase("music.menu.admin.name"), function()
+    informationsDerma:AddOption(StarnixMusic.Language["music.menu.admin.name"], function()
         editMenu(panelContent, target, tableModifications.title)
     end):SetIcon("icon16/page_white_edit.png")
     informationsDerma:AddOption(target.title)
@@ -257,7 +257,7 @@ local function informationsMenu(panelContent, target)
     --[[-------------------------------------------------------------------------
     URL EDIT
     ---------------------------------------------------------------------------]]
-    informationsDerma:AddOption(language.GetPhrase("music.menu.admin.url"), function()
+    informationsDerma:AddOption(StarnixMusic.Language["music.menu.admin.url"], function()
         editMenu(panelContent, target, tableModifications.url)
     end):SetIcon("icon16/music.png")
     informationsDerma:AddOption(target.url)
@@ -265,7 +265,7 @@ local function informationsMenu(panelContent, target)
     --[[-------------------------------------------------------------------------
     LOOP EDIT
     ---------------------------------------------------------------------------]]
-    informationsDerma:AddOption(language.GetPhrase("music.menu.admin.loop"), function()
+    informationsDerma:AddOption(StarnixMusic.Language["music.menu.admin.loop"], function()
         editMenu(panelContent, target, tableModifications.loop)
     end):SetIcon("icon16/arrow_refresh.png")
     informationsDerma:AddOption(tostring(target.loop))
@@ -273,7 +273,7 @@ local function informationsMenu(panelContent, target)
     --[[-------------------------------------------------------------------------
     VOLUME EDIT
     ---------------------------------------------------------------------------]]
-    informationsDerma:AddOption(language.GetPhrase("music.menu.admin.volume"), function()
+    informationsDerma:AddOption(StarnixMusic.Language["music.menu.admin.volume"], function()
         editMenu(panelContent, target, tableModifications.volume)
     end):SetIcon("icon16/sound.png")
     informationsDerma:AddOption(target.volume)
@@ -281,7 +281,7 @@ local function informationsMenu(panelContent, target)
     --[[-------------------------------------------------------------------------
     WHITELISTED USERS EDIT
     ---------------------------------------------------------------------------]]
-    informationsDerma:AddOption(language.GetPhrase("music.menu.admin.countusers"), function()
+    informationsDerma:AddOption(StarnixMusic.Language["music.menu.admin.countusers"], function()
         editMenu(panelContent, target, tableModifications.whitelisted)
     end):SetIcon("icon16/group.png")
     informationsDerma:AddOption(target.numberWhitelisted)
@@ -289,7 +289,7 @@ local function informationsMenu(panelContent, target)
     --[[-------------------------------------------------------------------------
     DELETE THE MUSIC OBJECT FOR ALL PLAYERS
     ---------------------------------------------------------------------------]]
-    informationsDerma:AddOption(language.GetPhrase("music.menu.admin.delete"), function()
+    informationsDerma:AddOption(StarnixMusic.Language["music.menu.admin.delete"], function()
         net.Start("Music_MenuForceStopSong")
             net.WriteEntity(target.creator)
         net.SendToServer()
@@ -432,7 +432,7 @@ function StarnixMusic.drawManage(panelContent)
     pListPanelTitleEmpty:SetPos(StarnixMusic.RespX(70), StarnixMusic.RespY(160))
     pListPanelTitleEmpty:SetSize(StarnixMusic.RespX(700), StarnixMusic.RespY(30))
     pListPanelTitleEmpty:SetFont("StarMusic_SubTitle")
-    pListPanelTitleEmpty:SetText(language.GetPhrase("music.menu.admin.empty"))
+    pListPanelTitleEmpty:SetText(StarnixMusic.Language["music.menu.admin.empty"])
     pListPanelTitleEmpty:SetTextColor(color_white)
     pListPanelTitleEmpty:SizeToContents()
     pListPanelTitleEmpty:CenterHorizontal()

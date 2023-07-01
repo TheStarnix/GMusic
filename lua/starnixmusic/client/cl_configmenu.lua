@@ -38,7 +38,7 @@ function StarnixMusic.ConfigMenu(panelContent)
     ---------------------------------------------------------------------------]]
     local pConfigRequestMusicText = vgui.Create("DLabel", panelContent)
     pConfigRequestMusicText:SetPos(pConfigRequestMusicButton:GetX() + pConfigRequestMusicButton:GetTall() + StarnixMusic.RespX(10), pConfigRequestMusicButton:GetY())
-    pConfigRequestMusicText:SetText(language.GetPhrase("music.config.AcceptMusics"))
+    pConfigRequestMusicText:SetText(StarnixMusic.Language["music.config.AcceptMusics"])
     pConfigRequestMusicText:SetFont("StarMusic_Text")
     pConfigRequestMusicText:SetTextColor(color_white)
     pConfigRequestMusicText:SizeToContents()

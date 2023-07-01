@@ -16,8 +16,8 @@
 
 local frameTextEntry = Material("starnixmusic/frame_textentry.png")
 local frameButtonImage = StarnixMusic.materialspath .. "frame_combobox.png"
-local frameNoLoop = StarnixMusic.materialspath.."frame_remove.png"
-local frameLoop = StarnixMusic.materialspath.."frame_check.png"
+local frameNoCheckbox = StarnixMusic.materialspath.."frame_remove.png"
+local frameYesCheckbox = StarnixMusic.materialspath.."frame_check.png"
 local materialTextEntry = StarnixMusic.materialspath .. "frame_textentry.png"
 local color_red = Color(255, 0, 0)
 local color_orange = Color(255, 165, 0)
@@ -42,216 +42,212 @@ function hideEditMusicButtons(...)
     end
 end
 
+local function createCheckbox(parentPanel, posY, labelTitle, variable)
+
+    local checkBox = vgui.Create("DImageButton", parentPanel)
+    checkBox:SetPos(parentPanel:GetWide()/2-StarnixMusic.RespX(330), posY)
+    checkBox:SetSize(32, 32)
+    checkBox.DoClick = function()
+        variable = !variable
+        changeButton(checkBox, variable)
+    end
+    changeButton(checkBox, variable)
+
+    --[[-------------------------------------------------------------------------]
+    Text inside the Button
+    ---------------------------------------------------------------------------]]
+    local checkBoxLabel = vgui.Create("DLabel", parentPanel)
+    checkBoxLabel:SetPos(checkBox:GetX() + checkBox:GetTall() + StarnixMusic.RespX(10), checkBox:GetY())
+    checkBoxLabel:SetText(labelTitle)
+    checkBoxLabel:SetFont("StarMusic_Text")
+    checkBoxLabel:SetTextColor(color_white)
+    checkBoxLabel:SizeToContents()
+    checkBox:Add(checkBoxLabel)
+
+    return checkBox
+
+end
+
 --[[-------------------------------------------------------------------------
 Function called to fill the music select menu.
 -------------------------------------------------------------------------]]--
 function StarnixMusic.RequestMenu(panelContent)
-    local buttonLoopState = true
     local canEveryonePauseMusic = true
     local isStaff = StarnixMusic.adminGroups[LocalPlayer():GetUserGroup()] or false
+
+    local scrollPanel = vgui.Create("DScrollPanel", panelContent)
+    scrollPanel:Dock(FILL)
+    scrollPanel:SetSize(panelContent:GetWide(), panelContent:GetTall())
+    -- We repaint the scrollbar
+    local sbar = scrollPanel:GetVBar()
+    sbar:SetHideButtons(true)
+    -- By using sbar, create a beautiful scrollbar
+    function sbar:Paint( w, h )
+        draw.RoundedBox( 0, 0, 0, w, h, StarnixMusic.colors["grey"] )
+    end
+    function sbar.btnGrip:Paint( w, h )
+        draw.RoundedBox( 0, 0, 0, w, h, StarnixMusic.colors["darkblue"])
+    end
+    local centerXScrollPanel = scrollPanel:GetWide() / 2
 
     --[[-------------------------------------------------------------------------
     TextEntry to enter the URL of the music
     -------------------------------------------------------------------------]]--
-    labelUrl = vgui.Create("DLabel", panelContent)
-    labelUrl:SetPos(StarnixMusic.RespX(0), StarnixMusic.RespY(20))
-    labelUrl:SetText(language.GetPhrase("music.menu.urlLabel"))
+    local labelUrl = vgui.Create("DLabel", scrollPanel)
+    labelUrl:SetText(StarnixMusic.Language["music.menu.urlLabel"])
     labelUrl:SetTextColor(color_white)
     labelUrl:SetFont("StarMusic_SubTitle")
     labelUrl:SizeToContents()
-    labelUrl:CenterHorizontal()
-
-    local textImageUrl = vgui.Create("DImage", panelContent)
-	textImageUrl:SetPos(0, StarnixMusic.RespY(60))
+    labelUrl:SetPos(centerXScrollPanel-labelUrl:GetWide()/2, StarnixMusic.RespY(20))
+    
+    local textImageUrl = vgui.Create("DImage", scrollPanel)
 	textImageUrl:SetSize(500,30)
 	textImageUrl:SetImage(materialTextEntry)
-    textImageUrl:CenterHorizontal()
+    textImageUrl:SetPos(centerXScrollPanel-textImageUrl:GetWide()/2, StarnixMusic.RespY(60))
 
-    local textEntryUrl = vgui.Create("DTextEntry", panelContent)
+    local textEntryUrl = vgui.Create("DTextEntry", scrollPanel)
     textEntryUrl:SetSize(500, 30)
-    textEntryUrl:SetPos(0, StarnixMusic.RespY(60))
-    textEntryUrl:SetPlaceholderText(string.rep(" ",15)..language.GetPhrase("music.menu.urlPlaceholder")) -- Need to add spaces because the icon on the image hide the text.
-    textEntryUrl:CenterHorizontal()
+    textEntryUrl:SetPlaceholderText(string.rep(" ",15)..StarnixMusic.Language["music.menu.urlPlaceholder"]) -- Need to add spaces because the icon on the image hide the text.
     textEntryUrl:SetDrawBackground(false)
     textEntryUrl:SetFontInternal("StarMusic_Text")
     textEntryUrl:SetTextColor(color_white)
+    textEntryUrl:SetPos(centerXScrollPanel-textEntryUrl:GetWide()/2, StarnixMusic.RespY(60))
 
     --[[-------------------------------------------------------------------------
     TextEntry to enter the title of the music
     -------------------------------------------------------------------------]]--
-    local textImageTitle = vgui.Create("DImage", panelContent)
-    textImageTitle:SetPos(0, StarnixMusic.RespY(140))
-    textImageTitle:SetSize(500,30)
-    textImageTitle:SetImage(materialTextEntry)
-    textImageTitle:CenterHorizontal()
-
-    labelTitle = vgui.Create("DLabel", panelContent)
-    labelTitle:SetPos(StarnixMusic.RespX(0), StarnixMusic.RespY(100))
-    labelTitle:SetText(language.GetPhrase("music.menu.titleMusic"))
-    labelTitle:SetTextColor(Color(255, 255, 255))
+    labelTitle = vgui.Create("DLabel", scrollPanel)
+    labelTitle:SetText(StarnixMusic.Language["music.menu.titleMusic"])
+    labelTitle:SetTextColor(color_white)
     labelTitle:SetFont("StarMusic_SubTitle")
     labelTitle:SizeToContents()
-    labelTitle:CenterHorizontal()
+    labelTitle:SetPos(centerXScrollPanel-labelTitle:GetWide()/2, StarnixMusic.RespY(100))
 
-    local textEntryTitle = vgui.Create("DTextEntry", panelContent)
+    local textImageTitle = vgui.Create("DImage", scrollPanel)
+    textImageTitle:SetSize(500,30)
+    textImageTitle:SetImage(materialTextEntry)
+    textImageTitle:SetPos(centerXScrollPanel-textImageTitle:GetWide()/2, StarnixMusic.RespY(140))
+
+    local textEntryTitle = vgui.Create("DTextEntry", scrollPanel)
     textEntryTitle:SetSize(500, 30)
-    textEntryTitle:SetPos(0, StarnixMusic.RespY(140))
     textEntryTitle:SetPlaceholderText(string.rep(" ",15).."Shi No Yume") -- Need to add spaces because the icon on the image hide the text.
-    textEntryTitle:CenterHorizontal()
     textEntryTitle:SetDrawBackground(false)
     textEntryTitle:SetFontInternal("StarMusic_Text")
     textEntryTitle:SetTextColor(color_white)
-    
+    textEntryTitle:SetPos(centerXScrollPanel-textEntryTitle:GetWide()/2, StarnixMusic.RespY(140))
 
     --[[-------------------------------------------------------------------------
-    Checkbox to loop the music
+    PERMISSIONS
     -------------------------------------------------------------------------]]--
-    local imageButtonLoop = vgui.Create("DImageButton", panelContent) -- Create the checkbox
-    imageButtonLoop:SetPos(0,StarnixMusic.RespY(190))
-    imageButtonLoop:SetSize(StarnixMusic.RespX(270), 30)
-    imageButtonLoop:SetImage(frameLoop)
-    imageButtonLoop.DoClick = function()
-        if buttonLoopState then
-            imageButtonLoop:SetImage(frameNoLoop)
-            if labelLoop then
-                labelLoop:SetText(language.GetPhrase("music.menu.loopLabelNo"))
-                labelLoop:SizeToContents()
-                labelLoop:Center()
-                labelLoop:SetTextColor(color_black)
-            end
-        else
-            imageButtonLoop:SetImage(frameLoop)
-            if labelLoop then
-                labelLoop:SetText(language.GetPhrase("music.menu.loopLabelYes"))
-                labelLoop:SizeToContents()
-                labelLoop:Center()
-                labelLoop:SetTextColor(color_white)
-            end
-        end
-        buttonLoopState = not buttonLoopState
-    end
-    imageButtonLoop:CenterHorizontal()
-        
-    local labelLoop = vgui.Create("DLabel", imageButtonLoop)
-    labelLoop:SetPos(0,0)
-    labelLoop:SetText(language.GetPhrase("music.menu.loopLabelYes"))
-    labelLoop:SetTextColor(color_white)
-    labelLoop:SetFont("StarMusic_SubTitle")
-    labelLoop:SizeToContents()
-    labelLoop:Center()
+    local permission_loop = false
+    local permission_time = false
+    local permission_changeMusic = false
+    local permission_changeTitle = false
+    local permission_addPlayers = false
+    local permission_removePlayers = false
+    local permission_pause = false
+    local addAllPlayers = false
 
-    --[[-------------------------------------------------------------------------]
-    Image Button to remove the possibility of everyone pausing the music
-    ---------------------------------------------------------------------------]]
+    local checkBoxLoop = createCheckbox(scrollPanel, StarnixMusic.RespY(190), StarnixMusic.Language["music.menu.perms.loop"], permission_loop)
+    local checkBoxTime = createCheckbox(scrollPanel, StarnixMusic.RespY(230), StarnixMusic.Language["music.menu.perms.time"], permission_time)
+    local checkBoxChangeMusic = createCheckbox(scrollPanel, StarnixMusic.RespY(270), StarnixMusic.Language["music.menu.perms.changemusic"], permission_changeMusic)
+    local checkBoxChangetitle = createCheckbox(scrollPanel, StarnixMusic.RespY(310), StarnixMusic.Language["music.menu.perms.changetitle"], permission_changeTitle)
+    local checkBoxAddPly = createCheckbox(scrollPanel, StarnixMusic.RespY(350), StarnixMusic.Language["music.menu.perms.addply"], permission_addPlayers)
+    local checkBoxRmPly = createCheckbox(scrollPanel, StarnixMusic.RespY(390), StarnixMusic.Language["music.menu.perms.rmply"], permission_removePlayers)
+    local checkBoxPause = createCheckbox(scrollPanel, StarnixMusic.RespY(430), StarnixMusic.Language["music.menu.perms.pause"], permission_pause)
+    
+    local checkBoxIsStaff = nil
     if isStaff then
-        local buttonEveryonePause = vgui.Create("DImageButton", panelContent)
-        buttonEveryonePause:SetPos(panelContent:GetWide()/2-StarnixMusic.RespX(330), StarnixMusic.RespY(190))
-        buttonEveryonePause:SetSize(32, 32)
-        buttonEveryonePause.DoClick = function()
-            canEveryonePauseMusic = !canEveryonePauseMusic
-            changeButton(buttonEveryonePause, canEveryonePauseMusic)
-        end
-        changeButton(buttonEveryonePause, canEveryonePauseMusic)
-
-        --[[-------------------------------------------------------------------------]
-        Text inside the Button
-        ---------------------------------------------------------------------------]]
-        local buttonEveryonePauseText = vgui.Create("DLabel", panelContent)
-        buttonEveryonePauseText:SetPos(buttonEveryonePause:GetX() + buttonEveryonePause:GetTall() + StarnixMusic.RespX(10), buttonEveryonePause:GetY())
-        buttonEveryonePauseText:SetText(language.GetPhrase("music.menu.admin.pauseperm"))
-        buttonEveryonePauseText:SetFont("StarMusic_Text")
-        buttonEveryonePauseText:SetTextColor(color_white)
-        buttonEveryonePauseText:SizeToContents()
-        imageButtonLoop:SetPos(panelContent:GetWide()/2+StarnixMusic.RespX(70),StarnixMusic.RespY(190))
+        checkBoxIsStaff = createCheckbox(scrollPanel, StarnixMusic.RespY(470), StarnixMusic.Language["music.menu.addallplayers"], addAllPlayers)
     end
-
-    --[[-------------------------------------------------------------------------
+        --[[-------------------------------------------------------------------------
     Button to send the request
     -------------------------------------------------------------------------]]--
     
-    local buttonRequest = vgui.Create("DImageButton", panelContent)
-    buttonRequest:SetPos(StarnixMusic.RespX(200), StarnixMusic.RespY(240))
+    local buttonRequest = vgui.Create("DImageButton", scrollPanel)
     buttonRequest:SetSize(StarnixMusic.RespX(200), StarnixMusic.RespY(50))
     buttonRequest:SetImage(frameButtonImage)
     buttonRequest.DoClick = function()
         if textEntryUrl:GetValue() == "" then -- TODO: Create a better menu.
-            Derma_Message(language.GetPhrase("music.menu.urlError"), language.GetPhrase("music.menu.Error"), language.GetPhrase("music.menu.Understood"))
+            Derma_Message(StarnixMusic.Language["music.menu.urlError"], StarnixMusic.Language["music.menu.Error"], StarnixMusic.Language["music.menu.Understood"])
         else
             net.Start("Music_SendSong") -- Send the request to the server
                 net.WriteString(textEntryUrl:GetValue()) -- Send the URL
                 net.WriteString(textEntryTitle:GetValue()) -- Send the title
-                net.WriteBool(buttonLoopState) -- Send the loop checkbox state
-                net.WriteBool(canEveryonePauseMusic)
-                net.WriteBool(false) -- Add all players?
+                net.WriteBool(permission_loop)
+                net.WriteBool(permission_time)
+                net.WriteBool(permission_changeMusic)
+                net.WriteBool(permission_changeTitle)
+                net.WriteBool(permission_addPlayers)
+                net.WriteBool(permission_removePlayers)
+                net.WriteBool(permission_pause)
+                net.WriteBool(addAllPlayers)
             net.SendToServer()
+            if frame then frame:Close() end
         end
     end
+    buttonRequest:SetPos(centerXScrollPanel-buttonRequest:GetWide()/2, StarnixMusic.RespY(510))
 
     local labelButtonRequest = vgui.Create("DLabel", buttonRequest)
     labelButtonRequest:SetPos(0,0)
-    labelButtonRequest:SetText(language.GetPhrase("music.menu.request"))
+    labelButtonRequest:SetText(StarnixMusic.Language["music.menu.request"])
     labelButtonRequest:SetFont("StarMusic_SubTitle")
     labelButtonRequest:SetTextColor(color_white)
     labelButtonRequest:SizeToContents()
     labelButtonRequest:Center()
 
-    --[[-------------------------------------------------------------------------]
-    Button to create and add all players
-    ---------------------------------------------------------------------------]]
-
-    local buttonRequestAll = vgui.Create("DImageButton", panelContent)
-    buttonRequestAll:SetPos(StarnixMusic.RespX(500), StarnixMusic.RespY(240))
-    buttonRequestAll:SetSize(StarnixMusic.RespX(200), StarnixMusic.RespY(50))
-    buttonRequestAll:SetImage(frameButtonImage)
-    buttonRequestAll.DoClick = function()
-        if textEntryUrl:GetValue() == "" then -- TODO: Create a better menu.
-            Derma_Message(language.GetPhrase("music.menu.urlError"), language.GetPhrase("music.menu.Error"), language.GetPhrase("music.menu.Understood"))
-        else
-            net.Start("Music_SendSong") -- Send the request to the server
-                net.WriteString(textEntryUrl:GetValue()) -- Send the URL
-                net.WriteString(textEntryTitle:GetValue()) -- Send the title
-                net.WriteBool(buttonLoopState) -- Send the loop checkbox state
-                net.WriteBool(canEveryonePauseMusic)
-                net.WriteBool(true) -- Add all players?
-            net.SendToServer()
-        end
+    --[[-------------------------------------------------------------------------
+    Button to stop the music
+    -------------------------------------------------------------------------]]--
+    local buttonStop = vgui.Create("DImageButton", scrollPanel)
+    buttonStop:SetSize(StarnixMusic.RespX(200), StarnixMusic.RespY(50))
+    buttonStop:SetImage(frameButtonImage)
+    buttonStop.DoClick = function()
+        hideEditMusicButtons(buttonStop, buttonPause, sliderVolume, buttonValidate)
+        labelButtonRequest:SetText(StarnixMusic.Language["music.menu.request"])
+        labelButtonRequest:SizeToContents()
+        labelButtonRequest:Center()
+        buttonRequest:SetPos(StarnixMusic.RespX(200), StarnixMusic.RespY(240))
+        buttonRequestAll:SetVisible(true)
+        net.Start("Music_StopSong")
+        net.SendToServer()
     end
-
-    local labelButtonRequestAll = vgui.Create("DLabel", buttonRequestAll)
-    labelButtonRequestAll:SetPos(0,0)
-    labelButtonRequestAll:SetText(language.GetPhrase("music.menu.requestAll"))
-    labelButtonRequestAll:SetFont("StarMusic_SubTitle")
-    labelButtonRequestAll:SetTextColor(color_white)
-    labelButtonRequestAll:SizeToContents()
-    labelButtonRequestAll:Center()
-    
+    buttonStop:CenterHorizontal(0.25)
+    buttonStop:SetPos(StarnixMusic.RespX(230),StarnixMusic.RespY(300))
 
     --[[-------------------------------------------------------------------------
     Button to pause the music
     -------------------------------------------------------------------------]]--
-    local buttonPause = vgui.Create("DImageButton", panelContent)
-    buttonPause:SetPos(0, StarnixMusic.RespY(320))
+    local buttonPause = vgui.Create("DImageButton", scrollPanel)
+    
     buttonPause:SetSize(StarnixMusic.RespX(200), StarnixMusic.RespY(50))
     buttonPause:SetImage(frameButtonImage)
     buttonPause.DoClick = function()
         net.Start("Music_PauseSong")
         net.SendToServer()
     end
-    buttonPause:CenterHorizontal(0.75)
+    buttonPause:SetPos(StarnixMusic.RespX(480), StarnixMusic.RespY(300))
 
     local labelButtonPause = vgui.Create("DLabel", buttonPause)
     labelButtonPause:SetPos(0,0)
-    labelButtonPause:SetText(language.GetPhrase("music.menu.pause"))
+    labelButtonPause:SetText(StarnixMusic.Language["music.menu.pause"])
     labelButtonPause:SetFont("StarMusic_SubTitle")
     labelButtonPause:SetTextColor(color_orange)
     labelButtonPause:SizeToContents()
     labelButtonPause:Center()
 
+    local labelButtonStop = vgui.Create("DLabel", buttonStop)
+    labelButtonStop:SetPos(0,0)
+    labelButtonStop:SetText(StarnixMusic.Language["music.menu.stop"])
+    labelButtonStop:SetFont("StarMusic_SubTitle")
+    labelButtonStop:SetTextColor(color_red)
+    labelButtonStop:SizeToContents()
+    labelButtonStop:Center()
+
     --[[-------------------------------------------------------------------------
     Change the volume of the music
     -------------------------------------------------------------------------]]--
-    local containerSlider = vgui.Create("DPanel", panelContent)
-    containerSlider:SetPos(0, StarnixMusic.RespY(400))
+    local containerSlider = vgui.Create("DPanel", scrollPanel)
     containerSlider:SetSize(StarnixMusic.RespX(360), StarnixMusic.RespY(50))
     containerSlider.Paint = nil
 
@@ -279,64 +275,37 @@ function StarnixMusic.RequestMenu(panelContent)
                 net.WriteFloat(sliderVolume:GetValue())
             net.SendToServer()
         else
-            LocalPlayer():ChatPrint(language.GetPhrase("music.menu.cooldownChange")..math.Round(volumeCooldownTimer - CurTime()).."s.")
+            LocalPlayer():ChatPrint(StarnixMusic.Language["music.menu.cooldownChange"]..math.Round(volumeCooldownTimer - CurTime()).."s.")
         end
         
     end
     buttonValidate:CenterVertical()
     local labelVolume = vgui.Create("DLabel", buttonValidate)
     labelVolume:SetPos(0, 0)
-    labelVolume:SetText(language.GetPhrase("music.menu.changeVolume"))
+    labelVolume:SetText(StarnixMusic.Language["music.menu.changeVolume"])
     labelVolume:SetFont("StarMusic_SubTitle")
     labelVolume:SetTextColor(color_white)
     labelVolume:SizeToContents()
+    labelVolume:SetSize(labelVolume:GetWide()+StarnixMusic.RespX(55),labelVolume:GetTall())
     labelVolume:CenterHorizontal()
 
-    containerSlider:CenterHorizontal()
+    containerSlider:SetPos(centerXScrollPanel-containerSlider:GetWide()/2, StarnixMusic.RespY(400))
     local width, _ = labelVolume:GetTextSize()
     buttonValidate:SetSize(width+StarnixMusic.RespX(10), StarnixMusic.RespY(50))
     containerSlider:SetSize(width+StarnixMusic.RespX(360), StarnixMusic.RespY(50))
-
-    --[[-------------------------------------------------------------------------
-    Button to stop the music
-    -------------------------------------------------------------------------]]--
-    local buttonStop = vgui.Create("DImageButton", panelContent)
-    buttonStop:SetPos(0, StarnixMusic.RespY(320))
-    buttonStop:SetSize(StarnixMusic.RespX(200), StarnixMusic.RespY(50))
-    buttonStop:SetImage(frameButtonImage)
-    buttonStop.DoClick = function()
-        hideEditMusicButtons(buttonStop, buttonPause, sliderVolume, buttonValidate)
-        labelButtonRequest:SetText(language.GetPhrase("music.menu.request"))
-        labelButtonRequest:SizeToContents()
-        labelButtonRequest:Center()
-        buttonRequest:SetPos(StarnixMusic.RespX(200), StarnixMusic.RespY(240))
-        buttonRequestAll:SetVisible(true)
-        net.Start("Music_StopSong")
-        net.SendToServer()
-    end
-    buttonStop:CenterHorizontal(0.25)
-
-    local labelButtonStop = vgui.Create("DLabel", buttonStop)
-    labelButtonStop:SetPos(0,0)
-    labelButtonStop:SetText(language.GetPhrase("music.menu.stop"))
-    labelButtonStop:SetFont("StarMusic_SubTitle")
-    labelButtonStop:SetTextColor(color_red)
-    labelButtonStop:SizeToContents()
-    labelButtonStop:Center()
 
     --[[-------------------------------------------------------------------------
     Hide stop button, pause button and change button if the player is not listening music.
     -------------------------------------------------------------------------]]--
     if not GLocalMusic.IsValidSong() then
         hideEditMusicButtons(buttonStop, buttonPause, sliderVolume, buttonValidate)
-        labelButtonRequest:SetText(language.GetPhrase("music.menu.request"))
+        labelButtonRequest:SetText(StarnixMusic.Language["music.menu.request"])
         labelButtonRequest:SizeToContents()
-        labelButtonRequest:Center()
-    elseif GLocalMusic.IsValidSong() and labelButtonRequest:GetText() == language.GetPhrase("music.menu.request") then
-        hideEditMusicButtons(buttonRequestAll)
-        labelButtonRequest:SetText(language.GetPhrase("music.menu.change"))
+    elseif GLocalMusic.IsValidSong() and labelButtonRequest:GetText() == StarnixMusic.Language["music.menu.request"] then
+        hideEditMusicButtons(checkBoxAddPly, checkBoxChangeMusic, checkBoxChangetitle, checkBoxLoop, checkBoxPause, checkBoxRmPly, checkBoxTime, checkBoxIsStaff)
+        labelButtonRequest:SetText(StarnixMusic.Language["music.menu.change"])
         labelButtonRequest:SizeToContents()
-        labelButtonRequest:Center()
-        buttonRequest:CenterHorizontal()
+        buttonRequest:SetPos(centerXScrollPanel-buttonRequest:GetWide()/2, StarnixMusic.RespY(190))
     end
+
 end
