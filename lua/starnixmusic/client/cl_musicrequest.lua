@@ -62,9 +62,8 @@ local function createCheckbox(parentPanel, posY, labelTitle, variable)
     checkBoxLabel:SetFont("StarMusic_Text")
     checkBoxLabel:SetTextColor(color_white)
     checkBoxLabel:SizeToContents()
-    checkBox:Add(checkBoxLabel)
 
-    return checkBox
+    return checkBox,checkBoxLabel
 
 end
 
@@ -148,17 +147,17 @@ function StarnixMusic.RequestMenu(panelContent)
     local permission_pause = false
     local addAllPlayers = false
 
-    local checkBoxLoop = createCheckbox(scrollPanel, StarnixMusic.RespY(190), StarnixMusic.Language["music.menu.perms.loop"], permission_loop)
-    local checkBoxTime = createCheckbox(scrollPanel, StarnixMusic.RespY(230), StarnixMusic.Language["music.menu.perms.time"], permission_time)
-    local checkBoxChangeMusic = createCheckbox(scrollPanel, StarnixMusic.RespY(270), StarnixMusic.Language["music.menu.perms.changemusic"], permission_changeMusic)
-    local checkBoxChangetitle = createCheckbox(scrollPanel, StarnixMusic.RespY(310), StarnixMusic.Language["music.menu.perms.changetitle"], permission_changeTitle)
-    local checkBoxAddPly = createCheckbox(scrollPanel, StarnixMusic.RespY(350), StarnixMusic.Language["music.menu.perms.addply"], permission_addPlayers)
-    local checkBoxRmPly = createCheckbox(scrollPanel, StarnixMusic.RespY(390), StarnixMusic.Language["music.menu.perms.rmply"], permission_removePlayers)
-    local checkBoxPause = createCheckbox(scrollPanel, StarnixMusic.RespY(430), StarnixMusic.Language["music.menu.perms.pause"], permission_pause)
+    local checkBoxLoop,checkBoxLoopLabel = createCheckbox(scrollPanel, StarnixMusic.RespY(190), StarnixMusic.Language["music.menu.perms.loop"], permission_loop)
+    local checkBoxTime,checkBoxTimeLabel = createCheckbox(scrollPanel, StarnixMusic.RespY(230), StarnixMusic.Language["music.menu.perms.time"], permission_time)
+    local checkBoxChangeMusic,checkBoxChangeMusicLabel = createCheckbox(scrollPanel, StarnixMusic.RespY(270), StarnixMusic.Language["music.menu.perms.changemusic"], permission_changeMusic)
+    local checkBoxChangetitle,checkBoxChangetitleLabel = createCheckbox(scrollPanel, StarnixMusic.RespY(310), StarnixMusic.Language["music.menu.perms.changetitle"], permission_changeTitle)
+    local checkBoxAddPly,checkBoxAddPlyLabel = createCheckbox(scrollPanel, StarnixMusic.RespY(350), StarnixMusic.Language["music.menu.perms.addply"], permission_addPlayers)
+    local checkBoxRmPly,checkBoxRmPlyLabel = createCheckbox(scrollPanel, StarnixMusic.RespY(390), StarnixMusic.Language["music.menu.perms.rmply"], permission_removePlayers)
+    local checkBoxPause,checkBoxPauseLabel = createCheckbox(scrollPanel, StarnixMusic.RespY(430), StarnixMusic.Language["music.menu.perms.pause"], permission_pause)
     
-    local checkBoxIsStaff = nil
+    local checkBoxIsStaff,checkBoxIsStaffLabel = nil
     if isStaff then
-        checkBoxIsStaff = createCheckbox(scrollPanel, StarnixMusic.RespY(470), StarnixMusic.Language["music.menu.addallplayers"], addAllPlayers)
+        checkBoxIsStaff,checkBoxIsStaffLabel = createCheckbox(scrollPanel, StarnixMusic.RespY(470), StarnixMusic.Language["music.menu.addallplayers"], addAllPlayers)
     end
         --[[-------------------------------------------------------------------------
     Button to send the request
@@ -207,10 +206,9 @@ function StarnixMusic.RequestMenu(panelContent)
         labelButtonRequest:SetText(StarnixMusic.Language["music.menu.request"])
         labelButtonRequest:SizeToContents()
         labelButtonRequest:Center()
-        buttonRequest:SetPos(StarnixMusic.RespX(200), StarnixMusic.RespY(240))
-        buttonRequestAll:SetVisible(true)
         net.Start("Music_StopSong")
         net.SendToServer()
+        frame:Close()
     end
     buttonStop:CenterHorizontal(0.25)
     buttonStop:SetPos(StarnixMusic.RespX(230),StarnixMusic.RespY(300))
@@ -302,7 +300,7 @@ function StarnixMusic.RequestMenu(panelContent)
         labelButtonRequest:SetText(StarnixMusic.Language["music.menu.request"])
         labelButtonRequest:SizeToContents()
     elseif GLocalMusic.IsValidSong() and labelButtonRequest:GetText() == StarnixMusic.Language["music.menu.request"] then
-        hideEditMusicButtons(checkBoxAddPly, checkBoxChangeMusic, checkBoxChangetitle, checkBoxLoop, checkBoxPause, checkBoxRmPly, checkBoxTime, checkBoxIsStaff)
+        hideEditMusicButtons(checkBoxAddPly, checkBoxChangeMusic, checkBoxChangetitle, checkBoxLoop, checkBoxPause, checkBoxRmPly, checkBoxTime, checkBoxIsStaff, checkBoxAddPlyLabel,checkBoxChangeMusicLabel,checkBoxChangetitleLabel,checkBoxIsStaffLabel,checkBoxLoopLabel,checkBoxPauseLabel,checkBoxRmPlyLabel,checkBoxTimeLabel)
         labelButtonRequest:SetText(StarnixMusic.Language["music.menu.change"])
         labelButtonRequest:SizeToContents()
         buttonRequest:SetPos(centerXScrollPanel-buttonRequest:GetWide()/2, StarnixMusic.RespY(190))
